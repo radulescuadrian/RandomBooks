@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomBooks.Website", "Rand
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Desktop", "Desktop", "{3348EFD1-4373-45F0-BB15-289B54C61DA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomBooks.Warehouse", "RandomBooks.Warehouse\RandomBooks.Warehouse.csproj", "{70BE3349-E493-43A6-82D3-BA3EE03A508B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomBooks.Warehouse", "RandomBooks.Warehouse\RandomBooks.Warehouse.csproj", "{70BE3349-E493-43A6-82D3-BA3EE03A508B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mobile", "Mobile", "{5E9A7082-0E13-48BA-87AB-D46524D30586}"
 EndProject
@@ -17,17 +17,21 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomBooks.Couriers.Androi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomBooks.Couriers.iOS", "RandomBooks.Couriers\RandomBooks.Couriers.iOS\RandomBooks.Couriers.iOS.csproj", "{055940D3-42CD-446E-BEE1-933854A0E333}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomBooks.Couriers", "RandomBooks.Couriers\RandomBooks.Couriers\RandomBooks.Couriers.csproj", "{C3AAE76D-77EE-43D2-B249-EE21FB3928DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomBooks.Couriers", "RandomBooks.Couriers\RandomBooks.Couriers\RandomBooks.Couriers.csproj", "{C3AAE76D-77EE-43D2-B249-EE21FB3928DF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API + Data", "API + Data", "{4DA286C9-104A-42D4-8B49-08E5D292DBCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomBooks.API", "RandomBooks.API\RandomBooks.API.csproj", "{262188B9-8CE8-4336-9506-F44789D8608F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomBooks.API", "RandomBooks.API\RandomBooks.API.csproj", "{262188B9-8CE8-4336-9506-F44789D8608F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomBooks.Data", "RandomBooks.Data\RandomBooks.Data.csproj", "{85596E72-63E0-4BFE-8A18-244840B7D971}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomBooks.Data", "RandomBooks.Data\RandomBooks.Data.csproj", "{85596E72-63E0-4BFE-8A18-244840B7D971}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomBooks.Website.Logic", "RandomBooks.Website.Logic\RandomBooks.Website.Logic.csproj", "{F2474EE4-016A-4B9E-B9C0-2F6EEDF15AE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomBooks.Website.Logic", "RandomBooks.Website.Logic\RandomBooks.Website.Logic.csproj", "{F2474EE4-016A-4B9E-B9C0-2F6EEDF15AE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomBooks.Warehouse.Logic", "RandomBooks.Warehouse.Logic\RandomBooks.Warehouse.Logic.csproj", "{38F68747-4B0B-42D6-9C62-142E05E54A25}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomBooks.Warehouse.Logic", "RandomBooks.Warehouse.Logic\RandomBooks.Warehouse.Logic.csproj", "{38F68747-4B0B-42D6-9C62-142E05E54A25}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{7B6D454D-60B1-4062-82D5-2BA8FD0F6B6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomBooks.Shared", "RandomBooks.Shared\RandomBooks.Shared.csproj", "{656C9CF7-B633-4856-B4CC-9B138B5FD50E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -153,6 +157,18 @@ Global
 		{38F68747-4B0B-42D6-9C62-142E05E54A25}.Release|iPhone.Build.0 = Release|Any CPU
 		{38F68747-4B0B-42D6-9C62-142E05E54A25}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{38F68747-4B0B-42D6-9C62-142E05E54A25}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{656C9CF7-B633-4856-B4CC-9B138B5FD50E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{656C9CF7-B633-4856-B4CC-9B138B5FD50E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{656C9CF7-B633-4856-B4CC-9B138B5FD50E}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{656C9CF7-B633-4856-B4CC-9B138B5FD50E}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{656C9CF7-B633-4856-B4CC-9B138B5FD50E}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{656C9CF7-B633-4856-B4CC-9B138B5FD50E}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{656C9CF7-B633-4856-B4CC-9B138B5FD50E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{656C9CF7-B633-4856-B4CC-9B138B5FD50E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{656C9CF7-B633-4856-B4CC-9B138B5FD50E}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{656C9CF7-B633-4856-B4CC-9B138B5FD50E}.Release|iPhone.Build.0 = Release|Any CPU
+		{656C9CF7-B633-4856-B4CC-9B138B5FD50E}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{656C9CF7-B633-4856-B4CC-9B138B5FD50E}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -167,6 +183,7 @@ Global
 		{85596E72-63E0-4BFE-8A18-244840B7D971} = {4DA286C9-104A-42D4-8B49-08E5D292DBCC}
 		{F2474EE4-016A-4B9E-B9C0-2F6EEDF15AE1} = {15330E6D-2229-4C04-AFDB-BAA8A4D41410}
 		{38F68747-4B0B-42D6-9C62-142E05E54A25} = {3348EFD1-4373-45F0-BB15-289B54C61DA6}
+		{656C9CF7-B633-4856-B4CC-9B138B5FD50E} = {7B6D454D-60B1-4062-82D5-2BA8FD0F6B6F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17A3F4AA-D8BA-4BB8-A0B8-D38EE34F07F1}

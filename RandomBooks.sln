@@ -31,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomBooks.Warehouse.Logic
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{7B6D454D-60B1-4062-82D5-2BA8FD0F6B6F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomBooks.Shared", "RandomBooks.Shared\RandomBooks.Shared.csproj", "{656C9CF7-B633-4856-B4CC-9B138B5FD50E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomBooks.Shared", "RandomBooks.Shared\RandomBooks.Shared.csproj", "{656C9CF7-B633-4856-B4CC-9B138B5FD50E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

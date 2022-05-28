@@ -1,0 +1,14 @@
+﻿@page "/books"
+@page "/books/{categoryName}"
+
+<h3>@CategoryName</h3>
+
+@code {
+    [Parameter]
+    public string? CategoryName { get; set; } = null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        //await ProductService.GetProducts(CategoryUrl);
+    }
+}

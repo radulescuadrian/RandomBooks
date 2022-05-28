@@ -1,4 +1,4 @@
-﻿namespace RandomBooks.Data.Models;
+﻿namespace RandomBooks.Shared.DatabaseModels;
 
 public class User
 {
@@ -10,4 +10,6 @@ public class User
 
     public List<Address> Addresses { get; set; } = new List<Address>();
     public List<User_Card> Cards { get; set; } = new List<User_Card>();
+
+    public bool Deactivated { get; set; } = false;
 }

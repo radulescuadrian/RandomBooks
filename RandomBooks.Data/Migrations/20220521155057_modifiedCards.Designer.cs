@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RandomBooks.Data.Context;
 
@@ -11,9 +12,10 @@ using RandomBooks.Data.Context;
 namespace RandomBooks.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220521155057_modifiedCards")]
+    partial class modifiedCards
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +24,7 @@ namespace RandomBooks.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Address", b =>
+            modelBuilder.Entity("RandomBooks.Data.Models.Address", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -37,9 +39,6 @@ namespace RandomBooks.Data.Migrations
                     b.Property<string>("Country")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Street")
                         .IsRequired()
@@ -59,16 +58,13 @@ namespace RandomBooks.Data.Migrations
                     b.ToTable("Addresses");
                 });
 
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Author", b =>
+            modelBuilder.Entity("RandomBooks.Data.Models.Author", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -83,7 +79,7 @@ namespace RandomBooks.Data.Migrations
                     b.ToTable("Authors");
                 });
 
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Blob", b =>
+            modelBuilder.Entity("RandomBooks.Data.Models.Blob", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -110,68 +106,13 @@ namespace RandomBooks.Data.Migrations
                     b.ToTable("Blobs");
                 });
 
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Category", b =>
+            modelBuilder.Entity("RandomBooks.Data.Models.Publisher", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Categories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Deleted = false,
-                            Name = "Action and Adventure"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Deleted = false,
-                            Name = "Classics"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Deleted = false,
-                            Name = "Horror"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Deleted = false,
-                            Name = "Fantasy"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Deleted = false,
-                            Name = "Romance"
-                        });
-                });
-
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Publisher", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -182,7 +123,7 @@ namespace RandomBooks.Data.Migrations
                     b.ToTable("Publishers");
                 });
 
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Status", b =>
+            modelBuilder.Entity("RandomBooks.Data.Models.Status", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -199,7 +140,7 @@ namespace RandomBooks.Data.Migrations
                     b.ToTable("Statuses");
                 });
 
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.User", b =>
+            modelBuilder.Entity("RandomBooks.Data.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -209,9 +150,6 @@ namespace RandomBooks.Data.Migrations
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("Deactivated")
-                        .HasColumnType("bit");
 
                     b.Property<byte[]>("Password")
                         .IsRequired()
@@ -230,7 +168,7 @@ namespace RandomBooks.Data.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.User_Card", b =>
+            modelBuilder.Entity("RandomBooks.Data.Models.User_Card", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -266,25 +204,25 @@ namespace RandomBooks.Data.Migrations
                     b.ToTable("UserCards");
                 });
 
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Address", b =>
+            modelBuilder.Entity("RandomBooks.Data.Models.Address", b =>
                 {
-                    b.HasOne("RandomBooks.Shared.DatabaseModels.User", null)
+                    b.HasOne("RandomBooks.Data.Models.User", null)
                         .WithMany("Addresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.User_Card", b =>
+            modelBuilder.Entity("RandomBooks.Data.Models.User_Card", b =>
                 {
-                    b.HasOne("RandomBooks.Shared.DatabaseModels.User", null)
+                    b.HasOne("RandomBooks.Data.Models.User", null)
                         .WithMany("Cards")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.User", b =>
+            modelBuilder.Entity("RandomBooks.Data.Models.User", b =>
                 {
                     b.Navigation("Addresses");
 

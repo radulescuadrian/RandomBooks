@@ -1,0 +1,67 @@
+﻿@inject ILocalStorageService LocalStorage
+@inject IAuthService AuthService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <button class="btn bg-white text-black" @onclick="BackToDashboard">Admin Dashboard</button>
+        <button class="btn btn-danger" @onclick="Logout">Logout</button>
+    </Authorized>
+    <NotAuthorized>
+        <div class="dropdown">
+            <button @onclick="ToggleUserMenu"
+                    @onfocusout="HideUserMenu"
+                    class="btn bg-white dropdown-toggle user-button">
+                <AuthorizeView Context="Customers">
+                    <Authorized>
+                        <i class="oi oi-person"></i> Hello, @GetUsername()
+                    </Authorized>
+                    <NotAuthorized>
+                        Authenticate
+                    </NotAuthorized>
+                </AuthorizeView>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right @UserMenuCssClass">
+                <AuthorizeView Context="Customers">
+                    <Authorized>
+                        <a href="profile" class="text-black dropdown-item">Profile</a>
+                        <a href="orders" class="text-black dropdown-item">Orders</a>
+                        <hr />
+                        <button class="dropdown-item" @onclick="Logout">Logout</button>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a href="login?returnUrl=@NavigationManager.ToBaseRelativePath(NavigationManager.Uri)" class="text-black dropdown-item">Login</a>
+                        <a href="register" class="text-black dropdown-item">Register</a>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private bool showUserMenu = false;
+    private string UserMenuCssClass => showUserMenu ? "show-menu" : null;
+
+    private async Task<string> GetUsername() => await AuthService.GetUsername();
+    private void ToggleUserMenu() => showUserMenu = !showUserMenu;
+
+    private async Task HideUserMenu()
+    {
+        await Task.Delay(100);
+        showUserMenu = false;
+    }
+
+    private async Task Logout()
+    {
+        await LocalStorage.RemoveItemAsync("token");
+        await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        NavigationManager.NavigateTo("");
+    }
+
+    private async Task BackToDashboard()
+    {
+        NavigationManager.NavigateTo("/admin/dashboard");
+    }
+}

@@ -1,0 +1,41 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+    <main>
+        <MudLayout>
+            <MudAppBar Elevation="1" Style="@($"color:{Colors.Shades.White}; background:{Colors.Shades.Black};")">
+                <MudText Typo="Typo.h5"><i class="fa-solid fa-book-open"></i> Random Books</MudText>
+                <MudSpacer />
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary">Logout</MudButton>
+            </MudAppBar>
+
+            <MudDrawer Open="true" Elevation="1" ClipMode="DrawerClipMode.Always"
+                       Variant="@DrawerVariant.Persistent"
+                       Style="@($"color:{Colors.Shades.White}; background:{Colors.Shades.Black};")">
+                <MudNavMenu>
+                    <MudNavLink Href="/admin/dashboard" Icon="@Icons.Filled.Dashboard" IconColor="Color.Inherit">Dashboard</MudNavLink>
+                    <MudNavGroup Title="Users" Icon="@Icons.Filled.People" IconColor="Color.Inherit" Expanded="true">
+                        <MudNavLink Href="/admin/users" Icon="fas fa-user" IconColor="Color.Inherit">Users</MudNavLink>
+                        <MudNavLink Href="/admin/emplyees" Icon="fas fa-user-secret" IconColor="Color.Inherit">Employees</MudNavLink>
+                    </MudNavGroup>
+                    <MudNavGroup Title="Products" Icon="@Icons.Filled.MenuBook" IconColor="Color.Inherit" Expanded="true">
+                        <MudNavLink Href="/admin/products" Icon="fas fa-book" IconColor="Color.Inherit">Products</MudNavLink>
+                        <MudNavLink Href="/admin/categories" Icon="@Icons.Filled.Category" IconColor="Color.Inherit">Categories</MudNavLink>
+                        <MudNavLink Href="/admin/publishers" Icon="fas fa-building" IconColor="Color.Inherit">Publishers</MudNavLink>
+                        <MudNavLink Href="/admin/authors" Icon="fas fa-user-graduate" IconColor="Color.Inherit">Authors</MudNavLink>
+                        <MudNavLink Href="/admin/languages" Icon="fas fa-globe" IconColor="Color.Inherit">Languages</MudNavLink>
+                    </MudNavGroup>
+                    <MudNavLink Href="/admin/orders" Icon="@Icons.Filled.ShoppingCart" IconColor="Color.Inherit">Orders</MudNavLink>
+                </MudNavMenu>
+            </MudDrawer>
+
+            <MudMainContent>
+                @Body
+            </MudMainContent>
+        </MudLayout>
+    </main>
+</div>
+
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>

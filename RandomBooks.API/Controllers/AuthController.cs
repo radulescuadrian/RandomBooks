@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RandomBooks.Data.Models;
 using RandomBooks.Shared.Authentication;
 using System.Security.Claims;
 

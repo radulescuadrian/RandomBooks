@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RandomBooks.Data.Context;
 
@@ -11,9 +12,10 @@ using RandomBooks.Data.Context;
 namespace RandomBooks.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220521175938_seedCategories")]
+    partial class seedCategories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,9 +39,6 @@ namespace RandomBooks.Data.Migrations
                     b.Property<string>("Country")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Street")
                         .IsRequired()
@@ -66,9 +65,6 @@ namespace RandomBooks.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -125,6 +121,9 @@ namespace RandomBooks.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("Visible")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
@@ -134,31 +133,36 @@ namespace RandomBooks.Data.Migrations
                         {
                             Id = 1,
                             Deleted = false,
-                            Name = "Action and Adventure"
+                            Name = "Action and Adventure",
+                            Visible = true
                         },
                         new
                         {
                             Id = 2,
                             Deleted = false,
-                            Name = "Classics"
+                            Name = "Classics",
+                            Visible = true
                         },
                         new
                         {
                             Id = 3,
                             Deleted = false,
-                            Name = "Horror"
+                            Name = "Horror",
+                            Visible = true
                         },
                         new
                         {
                             Id = 4,
                             Deleted = false,
-                            Name = "Fantasy"
+                            Name = "Fantasy",
+                            Visible = true
                         },
                         new
                         {
                             Id = 5,
                             Deleted = false,
-                            Name = "Romance"
+                            Name = "Romance",
+                            Visible = true
                         });
                 });
 
@@ -169,9 +173,6 @@ namespace RandomBooks.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -209,9 +210,6 @@ namespace RandomBooks.Data.Migrations
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("Deactivated")
-                        .HasColumnType("bit");
 
                     b.Property<byte[]>("Password")
                         .IsRequired()

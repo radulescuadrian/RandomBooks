@@ -1,4 +1,4 @@
-﻿namespace RandomBooks.Data.Models;
+﻿namespace RandomBooks.Shared.DatabaseModels;
 
 public class Blob
 {

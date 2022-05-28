@@ -1,39 +1,80 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">RandomBooks.Website</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
+﻿@inject ICategoryService CategoryService
+@inject NavigationManager NavigationManager
+@implements IDisposable
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
+<div>
+    <nav class="flex-nav">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
+            <h3 style="cursor: pointer;" class="text-white my-2" @onclick="Home">
+                <i class="fa-solid fa-book-open"></i> Random Books
+            </h3>
+        </div>
+
+        <div class="nav-item dropdown ps-3">
+            <NavLink class="dropdown-toggle" style="padding: 8px 16px; cursor: pointer;">
+                <button @onclick="ToggleCategories"
+                        @onfocusout="HideCategories">
+                     Books
+                </button>
+            </NavLink>
+            
+            <div class="dropdown-menu dropdown-menu-right @CategoriesCssClass">
+                @foreach (var category in CategoryService.Categories)
+                {
+                    <a class="dropdown-item" href="@GetURLFromName(@category.Name)">@category.Name</a>
+                }
+            </div>
+        </div>
+
+        <div class="nav-item px-1">
+            <NavLink class="nav-link text-white" href="contact">
+                Contact
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
+
+        <div class="nav-item my-auto ml-auto mr-2">
+            <AuthenticateButton />
         </div>
     </nav>
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
+    private bool showCategories = false;
+    private string CategoriesCssClass => showCategories ? "show-menu" : null;
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
+    private void ToggleCategories()
     {
-        collapseNavMenu = !collapseNavMenu;
+        showCategories = !showCategories;
+    }
+
+    private async Task HideCategories()
+    {
+        await Task.Delay(100);
+        showCategories = false;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CategoryService.GetCategories();
+        CategoryService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        CategoryService.OnChange -= StateHasChanged;
+    }
+
+    private string GetURLFromName(string name)
+    {
+        if (name == "All books")
+            return "books";
+        
+        var categoryUrl = name.ToLower().Trim().Replace(' ', '-');
+        return $"books/{categoryUrl}";
+    }
+
+    private void Home()
+    {
+        NavigationManager.NavigateTo("");
     }
 }

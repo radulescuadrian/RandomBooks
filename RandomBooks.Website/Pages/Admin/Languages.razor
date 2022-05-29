@@ -1,5 +1,6 @@
 ﻿@page "/admin/languages"
-@layout AdminLayout
+@layout Shared.Layouts.AdminLayout
+@attribute [Authorize(Roles = "Admin")]
 
 <h3>Languages</h3>
 

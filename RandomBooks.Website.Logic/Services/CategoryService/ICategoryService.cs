@@ -2,12 +2,15 @@
 {
     public interface ICategoryService
     {
-        List<Category> AdminCategories { get; set; }
         List<Category> Categories { get; set; }
 
         event Action OnChange;
 
+        Task AddCategory(Category category);
+        Category CreateNewCategory();
+        Task DeleteCategory(int categoryId);
         Task GetAdminCategories();
         Task GetCategories();
+        Task UpdateCategory(Category category);
     }
 }

@@ -24,11 +24,47 @@ public class CategoryService : ICategoryService
         return new ServiceResponse<List<Category>> { Data = categories };
     }
 
-    #region Helper Methods
-    private async Task<Category> GetCategoryById(int categoryId) =>
-        await _ctx.Categories.FirstOrDefaultAsync(c => c.Id == categoryId);
+    public async Task<ServiceResponse<List<Category>>> AddCategory(Category category)
+    {
+        category.Editing = category.New = false;
+        _ctx.Categories.Add(category);
+        await _ctx.SaveChangesAsync();
 
-    private async Task<Category> GetCategoryByName(string categoryName) =>
-        await _ctx.Categories.FirstOrDefaultAsync(c => c.Name == categoryName);
-    #endregion
+        return await GetAdminCategories();
+    }
+
+    public async Task<ServiceResponse<List<Category>>> UpdateCategory(Category category)
+    {
+        var dbCategory = await _ctx.Categories.FindAsync(category.Id);
+        if (dbCategory == null)
+            return new ServiceResponse<List<Category>>
+            {
+                Success = false,
+                Message = "Category not found."
+            };
+
+        dbCategory.Name = category.Name;
+        dbCategory.Deleted = category.Deleted;
+
+        await _ctx.SaveChangesAsync();
+
+        return await GetAdminCategories();
+    }
+
+    public async Task<ServiceResponse<List<Category>>> DeleteCategory(int categoryId)
+    {
+        var category = await _ctx.Categories.FindAsync(categoryId);
+        if (category == null)
+            return new ServiceResponse<List<Category>>
+            {
+                Success = false,
+                Message = "Category not found."
+            };
+
+        category.Editing = category.New = false;
+        category.Deleted = true;
+        await _ctx.SaveChangesAsync();
+
+        return await GetAdminCategories();
+    }
 }

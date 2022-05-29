@@ -1,5 +1,4 @@
 ﻿using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
@@ -19,7 +18,7 @@ public class AuthStateProvider : AuthenticationStateProvider
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        string authToken = await _localStorageService.GetItemAsStringAsync("authToken");
+        string authToken = await _localStorageService.GetItemAsStringAsync("token");
 
         var identity = new ClaimsIdentity();
         _http.DefaultRequestHeaders.Authorization = null;
@@ -34,7 +33,7 @@ public class AuthStateProvider : AuthenticationStateProvider
             }
             catch
             {
-                await _localStorageService.RemoveItemAsync("authToken");
+                await _localStorageService.RemoveItemAsync("token");
                 identity = new ClaimsIdentity();
             }
 

@@ -1,8 +1,82 @@
 ﻿@page "/admin/categories"
-@layout AdminLayout
+@layout Shared.Layouts.AdminLayout
+@attribute [Authorize(Roles = "Admin")]
+@inject ICategoryService CategoryService
+@implements IDisposable
 
-<h3>Categories</h3>
+<div class="row">
+    <h3 class="col">Categories</h3>
+    <div class="col">
+        <button class="btn bg-black text-white float-end" @onclick="CreateNewCategory">
+            <i class="oi oi-plus"></i> Add new category
+        </button>
+    </div>
+</div>
+<hr />
+
+@foreach (var category in CategoryService.Categories)
+{
+    @if (category.Editing)
+    {
+        <EditForm Model="editingCategory" OnSubmit="UpdateCategory">
+            <div class="row">
+                <div class="col">
+                    <InputText class="form-control" @bind-Value="category.Name" />
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="oi oi-cloud-upload"></i>
+                    </button>
+
+                    <button type="button" class="btn btn-danger" @onclick="(() => CancelEditing(category))">
+                        <i class="oi oi-circle-x"></i>
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col my-2" style="font-size: 16px;">@category.Name</div>
+            <div class="col">
+                <button class="btn bg-black text-white" @onclick="(() => EditCategory(category))">
+                    <i class="oi oi-pencil"></i>
+                </button>
+            </div>
+        </div>
+    }
+}
 
 @code {
+    Category editingCategory = null;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await CategoryService.GetAdminCategories();
+        CategoryService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose() => CategoryService.OnChange -= StateHasChanged;
+
+    private void EditCategory(Category category)
+    {
+        CategoryService.Categories.ForEach(x => x.Editing = false);
+
+        category.Editing = true;
+        editingCategory = category;
+    }
+
+    private async Task CancelEditing(Category category) => await CategoryService.GetAdminCategories();
+
+    private void CreateNewCategory() => editingCategory = CategoryService.CreateNewCategory();
+
+    private async Task UpdateCategory()
+    {
+        if (editingCategory.New)
+            await CategoryService.AddCategory(editingCategory);
+        else await CategoryService.UpdateCategory(editingCategory);
+
+        editingCategory = new Category();
+    }
 }

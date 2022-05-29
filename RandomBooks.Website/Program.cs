@@ -1,7 +1,7 @@
+global using Microsoft.AspNetCore.Components.Authorization;
 global using RandomBooks.Website.Logic.Services.CategoryService;
 global using RandomBooks.Website.Logic.Services.AuthService;
 using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;

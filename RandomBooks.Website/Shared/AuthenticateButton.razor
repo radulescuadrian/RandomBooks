@@ -9,42 +9,49 @@
         <button class="btn btn-danger" @onclick="Logout">Logout</button>
     </Authorized>
     <NotAuthorized>
-        <div class="dropdown">
-            <button @onclick="ToggleUserMenu"
-                    @onfocusout="HideUserMenu"
-                    class="btn bg-white dropdown-toggle user-button">
-                <AuthorizeView Context="Customers">
-                    <Authorized>
-                        <i class="oi oi-person"></i> Hello, @GetUsername()
-                    </Authorized>
-                    <NotAuthorized>
-                        Authenticate
-                    </NotAuthorized>
-                </AuthorizeView>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right @UserMenuCssClass">
-                <AuthorizeView Context="Customers">
-                    <Authorized>
-                        <a href="profile" class="text-black dropdown-item">Profile</a>
-                        <a href="orders" class="text-black dropdown-item">Orders</a>
+        <AuthorizeView Roles="Customer" Context="Customers">
+            <Authorized>
+                <div class="dropdown">
+                    <button @onclick="ToggleUserMenu"
+                            @onfocusout="HideUserMenu"
+                            class="btn btn-secondary dropdown-toggle user-button bg-white text-black">
+                        Hello, @username!
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end @UserMenuCssClass">
+                        <a href="profile" class="dropdown-item text-black">Profile</a>
+                        <a href="orders" class="dropdown-item text-black">Orders</a>
                         <hr />
-                        <button class="dropdown-item" @onclick="Logout">Logout</button>
-                    </Authorized>
-                    <NotAuthorized>
-                        <a href="login?returnUrl=@NavigationManager.ToBaseRelativePath(NavigationManager.Uri)" class="text-black dropdown-item">Login</a>
-                        <a href="register" class="text-black dropdown-item">Register</a>
-                    </NotAuthorized>
-                </AuthorizeView>
-            </div>
-        </div>
+                        <button class="dropdown-item text-black" @onclick="Logout">Logout</button>
+                    </div>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="dropdown">
+                    <button @onclick="ToggleUserMenu"
+                            @onfocusout="HideUserMenu"
+                            class="btn btn-secondary dropdown-toggle user-button bg-white text-black">
+                        Authenticate
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end @UserMenuCssClass">
+                        <a href="@GetReturnURL()" class="dropdown-item text-black">Login</a>
+                        <a href="register" class="dropdown-item text-black">Register</a>
+                    </div>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
     </NotAuthorized>
 </AuthorizeView>
 
 @code {
     private bool showUserMenu = false;
+    private string username = string.Empty;
     private string UserMenuCssClass => showUserMenu ? "show-menu" : null;
 
-    private async Task<string> GetUsername() => await AuthService.GetUsername();
+    protected override async Task OnInitializedAsync()
+    {
+        username = await AuthService.GetUsername();
+    }
+
     private void ToggleUserMenu() => showUserMenu = !showUserMenu;
 
     private async Task HideUserMenu()
@@ -60,8 +67,16 @@
         NavigationManager.NavigateTo("");
     }
 
-    private async Task BackToDashboard()
+    private void BackToDashboard()
     {
         NavigationManager.NavigateTo("/admin/dashboard");
+    }
+
+    private string GetReturnURL()
+    {
+        var returnUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        if (returnUrl == string.Empty)
+            return "login";
+        return $"login?returnUrl={returnUrl}";
     }
 }

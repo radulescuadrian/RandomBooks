@@ -9,5 +9,5 @@ public interface IAuthService
     Task<string> GetUserRole();
     Task<bool> IsUserAuthenticated();
     Task<ServiceResponse<string>> Login(UserLogin request);
-    Task<ServiceResponse<int>> Register(UserRegister request);
+    Task<ServiceResponse<string>> Register(UserRegister request);
 }

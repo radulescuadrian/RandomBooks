@@ -1,4 +1,7 @@
-﻿@inherits LayoutComponentBase
+﻿@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@inherits LayoutComponentBase
 
 <div class="page">
     <main>
@@ -6,7 +9,11 @@
             <MudAppBar Elevation="1" Style="@($"color:{Colors.Shades.White}; background:{Colors.Shades.Black};")">
                 <MudText Typo="Typo.h5"><i class="fa-solid fa-book-open"></i> Random Books</MudText>
                 <MudSpacer />
-                <MudButton Variant="Variant.Filled" Color="Color.Secondary">Logout</MudButton>
+                
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary"
+                           OnClick="Logout">
+                    Logout
+                </MudButton>
             </MudAppBar>
 
             <MudDrawer Open="true" Elevation="1" ClipMode="DrawerClipMode.Always"
@@ -14,11 +21,11 @@
                        Style="@($"color:{Colors.Shades.White}; background:{Colors.Shades.Black};")">
                 <MudNavMenu>
                     <MudNavLink Href="/admin/dashboard" Icon="@Icons.Filled.Dashboard" IconColor="Color.Inherit">Dashboard</MudNavLink>
-                    <MudNavGroup Title="Users" Icon="@Icons.Filled.People" IconColor="Color.Inherit" Expanded="true">
+                    <MudNavGroup Title="Users" Icon="@Icons.Filled.People" IconColor="Color.Inherit" Expanded="false">
                         <MudNavLink Href="/admin/users" Icon="fas fa-user" IconColor="Color.Inherit">Users</MudNavLink>
                         <MudNavLink Href="/admin/emplyees" Icon="fas fa-user-secret" IconColor="Color.Inherit">Employees</MudNavLink>
                     </MudNavGroup>
-                    <MudNavGroup Title="Products" Icon="@Icons.Filled.MenuBook" IconColor="Color.Inherit" Expanded="true">
+                    <MudNavGroup Title="Products" Icon="@Icons.Filled.MenuBook" IconColor="Color.Inherit" Expanded="false">
                         <MudNavLink Href="/admin/products" Icon="fas fa-book" IconColor="Color.Inherit">Products</MudNavLink>
                         <MudNavLink Href="/admin/categories" Icon="@Icons.Filled.Category" IconColor="Color.Inherit">Categories</MudNavLink>
                         <MudNavLink Href="/admin/publishers" Icon="fas fa-building" IconColor="Color.Inherit">Publishers</MudNavLink>
@@ -30,7 +37,9 @@
             </MudDrawer>
 
             <MudMainContent>
-                @Body
+                <div class="p-4" style="display:block; overflow:auto;">
+                    @Body
+                </div>
             </MudMainContent>
         </MudLayout>
     </main>
@@ -39,3 +48,12 @@
 <MudThemeProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
+
+@code {
+    private async Task Logout()
+    {
+        await LocalStorage.RemoveItemAsync("token");
+        await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        NavigationManager.NavigateTo("");
+    }
+}

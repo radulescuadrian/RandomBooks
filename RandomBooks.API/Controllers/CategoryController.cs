@@ -28,4 +28,25 @@ public class CategoryController : ControllerBase
         var result = await _categoryService.GetAdminCategories();
         return Ok(result);
     }
+
+    [HttpPost("admin"), Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<List<Category>>>> AddCategory(Category category)
+    {
+        var result = await _categoryService.AddCategory(category);
+        return Ok(result);
+    }
+
+    [HttpPut("admin"), Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<List<Category>>>> UpdateCategory(Category category)
+    {
+        var result = await _categoryService.UpdateCategory(category);
+        return Ok(result);
+    }
+
+    [HttpDelete("admin/{categoryId}"), Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<List<Category>>>> DeleteCategories(int categoryId)
+    {
+        var result = await _categoryService.DeleteCategory(categoryId);
+        return Ok(result);
+    }
 }

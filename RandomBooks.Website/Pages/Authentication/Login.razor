@@ -1,0 +1,78 @@
+﻿@page "/login"
+@layout Shared.Layouts.EmptyLayout
+@using RandomBooks.Shared.Authentication
+@using Microsoft.AspNetCore.WebUtilities
+@inject IAuthService AuthService
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="card w-50 mx-auto">
+    <h4 class="card-header bg-black text-white">Login</h4>
+    <div class="card-body">
+        <EditForm Model="user" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+            <div class="form-group mb-3">
+                <label for="username">Username</label>
+                <InputText class="form-control" id="username" @bind-Value="user.Username" />
+                <ValidationMessage For="@(() => user.Username)" />
+            </div>
+            <div class="form-group mb-3">
+                <label for="password">Password</label>
+                <InputText class="form-control" id="password" @bind-Value="user.Password" type="password" />
+                <ValidationMessage For="@(() => user.Password)" />
+            </div>
+            <div class="text-danger mb-3">
+                <span>@errorMessage</span>
+            </div>
+
+            <button class="btn bg-black text-white">
+                Login
+            </button>
+            <NavLink href="register" class="btn btn-link text-black">Register</NavLink>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private UserLogin user = new UserLogin();
+    private string errorMessage = string.Empty;
+    private string returnUrl = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var url))
+            returnUrl = url;
+    }
+
+    private async Task HandleLogin()
+    {
+        var result = await AuthService.Login(user);
+        if (result.Success)
+        {
+            errorMessage = string.Empty;
+
+            await LocalStorage.SetItemAsync("token", result.Data);
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+            switch (await AuthService.GetUserRole())
+            {
+                case "Admin": NavigationManager.NavigateTo("admin/dashboard"); return;
+
+                case "Courier":
+                case "Employee": 
+                    {
+                        await LocalStorage.RemoveItemAsync("token");
+                        await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                        errorMessage = "Please use a different account"; 
+                    return;
+                }
+            }
+
+            NavigationManager.NavigateTo(returnUrl);
+        }
+        else errorMessage = result.Message;
+    }
+}

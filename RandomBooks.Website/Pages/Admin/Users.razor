@@ -1,5 +1,6 @@
 ﻿@page "/admin/users"
-@layout AdminLayout
+@layout Shared.Layouts.AdminLayout
+@attribute [Authorize(Roles = "Admin")]
 
 <h3>Users</h3>
 

@@ -1,8 +1,16 @@
 ﻿@inject NavigationManager NavigationManager
+@inject IAuthService AuthService
 
 @code {
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        NavigationManager.NavigateTo("/");
+        if (await AuthService.IsUserAuthenticated())
+            if (await AuthService.GetUserRole() == "Admin")
+            {
+                NavigationManager.NavigateTo("admin/dashboard");
+                return;
+            }
+
+        NavigationManager.NavigateTo("");
     }
 }

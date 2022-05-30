@@ -1,9 +1,101 @@
 ﻿@page "/admin/languages"
 @layout Shared.Layouts.AdminLayout
 @attribute [Authorize(Roles = "Admin")]
+@inject ILanguageService LanguageService
+@implements IDisposable
 
-<h3>Languages</h3>
+<div class="row">
+    <h3 class="col">Languages</h3>
+    <div class="col">
+        <button class="btn bg-black text-white float-end" @onclick="CreateNewLanguage">
+            <i class="oi oi-plus"></i> Add new language
+        </button>
+    </div>
+</div>
+<hr />
+
+<div class="header">
+    <div class="col">Name</div>
+    <div class="col">Display Name</div>
+    <div class="col">Deleted</div>
+    <div class="col"></div>
+</div>
+
+@foreach (var language in LanguageService.Languages)
+{
+    @if (language.Editing)
+    {
+        <EditForm Model="editingLanguage" OnSubmit="UpdateLanguage">
+            <div class="row">
+                <div class="col">
+                    <InputText class="form-control" @bind-Value="editingLanguage.Name" />
+                </div>
+                <div class="col">
+                    <InputText class="form-control" @bind-Value="editingLanguage.DisplayName" />
+                </div>
+                <div class="col col-visible my-auto">
+                    <InputCheckbox style="transform: scale(1.5, 1.5);" @bind-Value="editingLanguage.Deleted"></InputCheckbox>
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="oi oi-cloud-upload"></i>
+                    </button>
+
+                    <button type="button" class="btn btn-danger" @onclick="CancelEditing">
+                        <i class="oi oi-circle-x"></i>
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col my-auto @IsDeleted(language)" style="font-size: 16px;">@language.Name</div>
+            <div class="col my-auto @IsDeleted(language)" style="font-size: 16px;">@language.DisplayName</div>
+            <div class="col my-auto col-visible">
+                <span>@(language.Deleted ? "✔️" : "")</span>
+            </div>
+            <div class="col">
+                <button class="btn bg-black text-white" @onclick="(() => EditLanguage(language))">
+                    <i class="oi oi-pencil"></i>
+                </button>
+            </div>
+        </div>
+    }
+}
 
 @code {
+    Language editingLanguage = null;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await LanguageService.GetLanguages(true);
+        LanguageService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose() => LanguageService.OnChange -= StateHasChanged;
+
+    private void EditLanguage(Language language)
+    {
+        LanguageService.Languages.ForEach(x => x.Editing = false);
+
+        language.Editing = true;
+        editingLanguage = language;
+    }
+
+    private async Task CancelEditing() => await LanguageService.GetLanguages(true);
+
+    private void CreateNewLanguage() => editingLanguage = LanguageService.CreateNewLanguage();
+
+    private async Task UpdateLanguage()
+    {
+        if (editingLanguage.New)
+            await LanguageService.AddLanguage(editingLanguage);
+        else await LanguageService.UpdateLanguage(editingLanguage);
+
+        editingLanguage = new Language();
+    }
+
+    private string IsDeleted(Language language) => language.Deleted ? "text-danger" : string.Empty;
 }

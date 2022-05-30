@@ -14,6 +14,12 @@
 </div>
 <hr />
 
+<div class="header">
+    <div class="col">Name</div>
+    <div class="col">Deleted</div>
+    <div class="col"></div>
+</div>
+
 @foreach (var category in CategoryService.Categories)
 {
     @if (category.Editing)
@@ -21,14 +27,17 @@
         <EditForm Model="editingCategory" OnSubmit="UpdateCategory">
             <div class="row">
                 <div class="col">
-                    <InputText class="form-control" @bind-Value="category.Name" />
+                    <InputText class="form-control" @bind-Value="editingCategory.Name" />
+                </div>
+                <div class="col col-visible my-auto">
+                    <InputCheckbox style="transform: scale(1.5, 1.5);" @bind-Value="editingCategory.Deleted"></InputCheckbox>
                 </div>
                 <div class="col">
                     <button type="submit" class="btn btn-primary">
                         <i class="oi oi-cloud-upload"></i>
                     </button>
 
-                    <button type="button" class="btn btn-danger" @onclick="(() => CancelEditing(category))">
+                    <button type="button" class="btn btn-danger" @onclick="CancelEditing">
                         <i class="oi oi-circle-x"></i>
                     </button>
                 </div>
@@ -38,7 +47,10 @@
     else
     {
         <div class="row">
-            <div class="col my-2" style="font-size: 16px;">@category.Name</div>
+            <div class="col my-auto @IsDeleted(category)" style="font-size: 16px;">@category.Name</div>
+            <div class="col my-auto col-visible">
+                <span>@(category.Deleted ? "✔️" : "")</span>
+            </div>
             <div class="col">
                 <button class="btn bg-black text-white" @onclick="(() => EditCategory(category))">
                     <i class="oi oi-pencil"></i>
@@ -67,7 +79,7 @@
         editingCategory = category;
     }
 
-    private async Task CancelEditing(Category category) => await CategoryService.GetAdminCategories();
+    private async Task CancelEditing() => await CategoryService.GetAdminCategories();
 
     private void CreateNewCategory() => editingCategory = CategoryService.CreateNewCategory();
 
@@ -79,4 +91,6 @@
 
         editingCategory = new Category();
     }
+
+    private string IsDeleted(Category category) => category.Deleted ? "text-danger" : string.Empty;
 }

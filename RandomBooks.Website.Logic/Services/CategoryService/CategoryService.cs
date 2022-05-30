@@ -1,6 +1,4 @@
-﻿using RandomBooks.Shared;
-
-namespace RandomBooks.Website.Logic.Services.CategoryService;
+﻿namespace RandomBooks.Website.Logic.Services.CategoryService;
 
 public class CategoryService : ICategoryService
 {

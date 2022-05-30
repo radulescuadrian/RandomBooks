@@ -4,6 +4,7 @@ global using RandomBooks.Shared;
 global using RandomBooks.Shared.DatabaseModels;
 global using RandomBooks.API.Services.AuthService;
 global using RandomBooks.API.Services.CategoryService;
+global using RandomBooks.API.Services.LanguageService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -18,6 +19,7 @@ builder.Services.AddControllers();
 // RegisterServices
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ILanguageService, LanguageService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

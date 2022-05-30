@@ -21,11 +21,11 @@
                        Style="@($"color:{Colors.Shades.White}; background:{Colors.Shades.Black};")">
                 <MudNavMenu>
                     <MudNavLink Href="/admin/dashboard" Icon="@Icons.Filled.Dashboard" IconColor="Color.Inherit">Dashboard</MudNavLink>
-                    <MudNavGroup Title="Users" Icon="@Icons.Filled.People" IconColor="Color.Inherit" Expanded="false">
+                    <MudNavGroup Title="People" Icon="@Icons.Filled.People" IconColor="Color.Inherit" Expanded="peopleExpand" ExpandedChanged="TogglePeople">
                         <MudNavLink Href="/admin/users" Icon="fas fa-user" IconColor="Color.Inherit">Users</MudNavLink>
                         <MudNavLink Href="/admin/emplyees" Icon="fas fa-user-secret" IconColor="Color.Inherit">Employees</MudNavLink>
                     </MudNavGroup>
-                    <MudNavGroup Title="Products" Icon="@Icons.Filled.MenuBook" IconColor="Color.Inherit" Expanded="false">
+                    <MudNavGroup Title="Products" Icon="@Icons.Filled.MenuBook" IconColor="Color.Inherit" Expanded="productsExpand" ExpandedChanged="ToggleProducts">
                         <MudNavLink Href="/admin/products" Icon="fas fa-book" IconColor="Color.Inherit">Products</MudNavLink>
                         <MudNavLink Href="/admin/categories" Icon="@Icons.Filled.Category" IconColor="Color.Inherit">Categories</MudNavLink>
                         <MudNavLink Href="/admin/publishers" Icon="fas fa-building" IconColor="Color.Inherit">Publishers</MudNavLink>
@@ -50,6 +50,12 @@
 <MudSnackbarProvider/>
 
 @code {
+    private bool peopleExpand = false;
+    private bool productsExpand = false;
+
+    private void TogglePeople() => peopleExpand = !peopleExpand;
+    private void ToggleProducts() => productsExpand = !productsExpand;
+
     private async Task Logout()
     {
         await LocalStorage.RemoveItemAsync("token");

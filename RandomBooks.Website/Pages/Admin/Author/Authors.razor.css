@@ -1,0 +1,45 @@
+﻿.row {
+    display: flex;
+    padding: 6px;
+}
+
+.col {
+    flex: 1;
+}
+
+.col-visible {
+    text-align: center;
+}
+
+.header {
+    display: flex;
+    font-weight: 600;
+    text-align: center;
+    border-bottom: 1px solid lightgray;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+}
+
+.big-text {
+    display: -webkit-box;
+    max-width: 250px;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+img {
+    height: 70px;
+    width: 70px;
+    border-radius: 35px;
+}
+
+.btn-outline-black {
+    color: black;
+    border-color: black;
+}
+
+    .btn-outline-black:hover {
+        color: white;
+        background-color: black;
+    }

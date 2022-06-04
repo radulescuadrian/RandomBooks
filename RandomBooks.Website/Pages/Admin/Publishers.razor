@@ -1,9 +1,99 @@
 ﻿@page "/admin/publishers"
 @layout Shared.Layouts.AdminLayout
 @attribute [Authorize(Roles = "Admin")]
+@inject IPublisherService PublisherService
+@implements IDisposable
 
-<h3>Publishers</h3>
+<div class="row">
+    <h3 class="col">Publishers</h3>
+    <div class="col">
+        <button class="btn bg-black text-white float-end" @onclick="CreateNewPublisher">
+            <i class="oi oi-plus"></i> Add new publisher
+        </button>
+    </div>
+</div>
+<hr />
+
+<div class="header">
+    <div class="col" style="text-align: start;">Name</div>
+    <div class="col">Deleted</div>
+    <div class="col"></div>
+</div>
+
+@foreach (var publisher in PublisherService.Publishers)
+{
+    @if (publisher.Editing)
+    {
+        <EditForm Model="editingPublisher" OnSubmit="UpdatePublisher">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="row">
+                <div class="col">
+                    <InputText class="form-control" @bind-Value="editingPublisher.Name" />
+                </div>
+                <div class="col col-visible my-auto">
+                    <InputCheckbox style="transform: scale(1.5, 1.5);" @bind-Value="editingPublisher.Deleted"></InputCheckbox>
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="oi oi-cloud-upload"></i>
+                    </button>
+
+                    <button type="button" class="btn btn-danger" @onclick="CancelEditing">
+                        <i class="oi oi-circle-x"></i>
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col my-auto @IsDeleted(publisher)" style="font-size: 16px;">@publisher.Name</div>
+            <div class="col my-auto col-visible">
+                <span>@(publisher.Deleted ? "✔️" : "")</span>
+            </div>
+            <div class="col">
+                <button class="btn bg-black text-white" @onclick="(() => EditPublisher(publisher))">
+                    <i class="oi oi-pencil"></i>
+                </button>
+            </div>
+        </div>
+    }
+}
 
 @code {
+    Publisher editingPublisher = null;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await PublisherService.GetPublishers();
+        PublisherService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose() => PublisherService.OnChange -= StateHasChanged;
+
+    private void EditPublisher(Publisher publisher)
+    {
+        PublisherService.Publishers.ForEach(x => x.Editing = false);
+
+        publisher.Editing = true;
+        editingPublisher = publisher;
+    }
+
+    private async Task CancelEditing() => await PublisherService.GetPublishers();
+
+    private void CreateNewPublisher() => editingPublisher = PublisherService.CreateNewPublisher();
+
+    private async Task UpdatePublisher()
+    {
+        
+        if (editingPublisher.New)
+            await PublisherService.AddPublisher(editingPublisher);
+        else await PublisherService.UpdatePublisher(editingPublisher);
+
+        editingPublisher = new Publisher();
+    }
+
+    private string IsDeleted(Publisher publisher) => publisher.Deleted ? "text-danger" : string.Empty;
 }

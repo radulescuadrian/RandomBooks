@@ -15,7 +15,7 @@
 <hr />
 
 <div class="header">
-    <div class="col">Name</div>
+    <div class="col" style="text-align: initial;">Name</div>
     <div class="col">Display Name</div>
     <div class="col">Deleted</div>
     <div class="col"></div>
@@ -52,7 +52,7 @@
     {
         <div class="row">
             <div class="col my-auto @IsDeleted(language)" style="font-size: 16px;">@language.Name</div>
-            <div class="col my-auto @IsDeleted(language)" style="font-size: 16px;">@language.DisplayName</div>
+            <div class="col my-auto @IsDeleted(language)" style="font-size: 16px; text-align:center;">@language.DisplayName</div>
             <div class="col my-auto col-visible">
                 <span>@(language.Deleted ? "✔️" : "")</span>
             </div>

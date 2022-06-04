@@ -2,9 +2,12 @@ global using Microsoft.EntityFrameworkCore;
 global using RandomBooks.Data.Context;
 global using RandomBooks.Shared;
 global using RandomBooks.Shared.DatabaseModels;
+global using RandomBooks.Shared.DTOs;
 global using RandomBooks.API.Services.AuthService;
 global using RandomBooks.API.Services.CategoryService;
 global using RandomBooks.API.Services.LanguageService;
+global using RandomBooks.API.Services.PublisherService;
+global using RandomBooks.API.Services.AuthorService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -20,6 +23,8 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ILanguageService, LanguageService>();
+builder.Services.AddScoped<IPublisherService, PublisherService>();
+builder.Services.AddScoped<IAuthorService, AuthorService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

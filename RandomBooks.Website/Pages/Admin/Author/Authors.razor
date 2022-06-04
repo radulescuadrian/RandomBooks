@@ -1,0 +1,122 @@
+﻿@page "/admin/authors"
+@layout Shared.Layouts.AdminLayout
+@attribute [Authorize(Roles = "Admin")]
+@inject IAuthorService AuthorService
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+<div class="row">
+    <h3 class="col">Authors</h3>
+    <div class="col">
+        <button class="btn bg-black text-white float-end" @onclick="CreateNewAuthor">
+            <i class="oi oi-plus"></i> Add new author
+        </button>
+    </div>
+</div>
+<hr />
+
+@if (AuthorService.Authors is null || AuthorService.Authors.Count == 0)
+{
+    <h2 class="mx-auto my-auto">@AuthorService.Message</h2>
+}
+else
+{
+    <div class="header">
+        <div class="col" style="text-align: start;"><p style="margin: 0; padding-left: 82px;">Name</p></div>
+        <div class="col" style="text-align: start;"><p style="margin: 0; padding-left: 14px;">Description</p></div>
+        <div class="col">Deleted</div>
+        <div class="col"></div>
+    </div>
+    
+    <div class="mb-2" style="height: 450px;">
+        @foreach (var author in AuthorService.Authors)
+        {
+            <div class="row" style="height: 90px;">
+                <div class="col my-auto">
+                    <div style="display: flex;">
+                        @if (string.IsNullOrWhiteSpace(author.Image))
+                        {
+                            <img src="user.svg" class="my-auto"/>
+                        }
+                        else
+                        {
+                            <img src="@author.Image" class="my-auto" style="border-radius: 35px;"/>
+                        }
+                        <div class="my-auto ms-2 @IsDeleted(author)" style="font-size: 16px;">@author.Name</div>
+                    </div>
+                </div>
+                <div class="col my-auto @IsDeleted(author) big-text" style="font-size: 12px;">@author.Description</div>
+                <div class="col my-auto col-visible">
+                    <span>@(author.Deleted ? "✔️" : "")</span>
+                </div>
+                <div class="col my-auto">
+                    <button class="btn bg-black text-white" @onclick="(() => EditAuthor(author.Id))">
+                        <i class="oi oi-pencil"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isFirstDisabled
+                @onclick="(() => SelectPage(1))">
+        <p style="margin: 0; font-weight: 900;"><i class="oi oi-chevron-left"></i>&nbsp First</p>
+    </button>
+
+    for (var i = 1; i <= AuthorService.PageCount; i++)
+    {
+        var page = i;
+        <button class="btn @(i == AuthorService.Page ? "bg-black text-white" : "btn-outline-black")"
+                style="margin: 2px;"
+                @onclick="(() => SelectPage(page))">@i</button>
+    }
+
+    <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isLastDisabled
+            @onclick="(() => SelectPage(AuthorService.PageCount))">
+        <p style="margin: 0; font-weight: 900;">Last &nbsp<i class="oi oi-chevron-right"></i></p>
+    </button>
+}
+
+@code {
+    bool isFirstDisabled = true;
+    bool isLastDisabled = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthorService.Page = 1;
+        await AuthorService.GetAuthors();
+        AuthorService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose() => AuthorService.OnChange -= StateHasChanged;
+
+    private async Task SelectPage(int page)
+    {
+        AuthorService.Page = page;
+        await AuthorService.GetAuthors();
+
+        if (page == 1)
+        {
+            isFirstDisabled = true;
+            isLastDisabled = false;
+        }
+        else if (page == AuthorService.PageCount)
+        {
+            isFirstDisabled = false;
+            isLastDisabled = true;
+        }
+        else
+        {
+            isFirstDisabled = false;
+            isLastDisabled = false;
+        }
+    }
+
+    private void EditAuthor(int authorId) => NavigationManager.NavigateTo($"admin/author/{authorId}");
+
+    private void CreateNewAuthor() => NavigationManager.NavigateTo($"admin/author");
+
+    private async Task CancelEditing() => await AuthorService.GetAuthors();
+
+    private string IsDeleted(Author author) => author.Deleted ? "text-danger" : string.Empty;
+}

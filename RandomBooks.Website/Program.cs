@@ -1,7 +1,9 @@
 global using Microsoft.AspNetCore.Components.Authorization;
+global using RandomBooks.Website.Logic.Services.AuthService;
 global using RandomBooks.Website.Logic.Services.CategoryService;
 global using RandomBooks.Website.Logic.Services.LanguageService;
-global using RandomBooks.Website.Logic.Services.AuthService;
+global using RandomBooks.Website.Logic.Services.PublisherService;
+global using RandomBooks.Website.Logic.Services.AuthorService;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -17,9 +19,11 @@ builder.Services.AddMudServices();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ILanguageService, LanguageService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPublisherService, PublisherService>();
+builder.Services.AddScoped<IAuthorService, AuthorService>();
 
 builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore();

@@ -13,7 +13,7 @@ public class Author
     [Required, MinLength(6, ErrorMessage ="Please provide a more accurate description")]
     public string Description { get; set; } = string.Empty;
 
-    public string? Image { get; set; } = string.Empty;
+    public Blob? Image { get; set; }
 
     public bool Deleted { get; set; } = false;
 

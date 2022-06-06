@@ -4,6 +4,7 @@ global using RandomBooks.Shared;
 global using RandomBooks.Shared.DatabaseModels;
 global using RandomBooks.Shared.DTOs;
 global using RandomBooks.API.Services.AuthService;
+global using RandomBooks.API.Services.BookService;
 global using RandomBooks.API.Services.CategoryService;
 global using RandomBooks.API.Services.LanguageService;
 global using RandomBooks.API.Services.PublisherService;
@@ -21,6 +22,7 @@ builder.Services.AddControllers();
 
 // RegisterServices
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ILanguageService, LanguageService>();
 builder.Services.AddScoped<IPublisherService, PublisherService>();

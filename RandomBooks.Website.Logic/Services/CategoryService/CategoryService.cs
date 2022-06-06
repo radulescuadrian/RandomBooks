@@ -27,6 +27,14 @@ public class CategoryService : ICategoryService
         else Categories = new List<Category>();
     }
 
+    public async Task<List<Category>> GetVisibleCategoriesList()
+    {
+        var response = await _http.GetFromJsonAsync<ServiceResponse<List<Category>>>("https://localhost:7163/api/category");
+        if (response != null && response.Data != null)
+            return response.Data;
+        else return new List<Category>();
+    }
+
     public async Task GetAdminCategories()
     {
         var response = await _http.GetFromJsonAsync<ServiceResponse<List<Category>>>("https://localhost:7163/api/category/admin");
@@ -51,19 +59,6 @@ public class CategoryService : ICategoryService
     public async Task UpdateCategory(Category category)
     {
         var response = await _http.PutAsJsonAsync("https://localhost:7163/api/category/admin", category);
-        if (response != null)
-        {
-            Categories = (await response.Content
-                .ReadFromJsonAsync<ServiceResponse<List<Category>>>()).Data;
-            OnChange.Invoke();
-            return;
-        }
-        else Categories = new List<Category>();
-    }
-
-    public async Task DeleteCategory(int categoryId)
-    {
-        var response = await _http.DeleteAsync($"https://localhost:7163/api/category/admin/{categoryId}");
         if (response != null)
         {
             Categories = (await response.Content

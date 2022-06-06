@@ -27,14 +27,7 @@ else
         <DataAnnotationsValidator />
         <div class="row mb-2">
             <div class="col-3 col-md-4 col-lg-3">
-                @if (string.IsNullOrWhiteSpace(author.Image))
-                {
-                    <img src="user.svg"/>
-                }
-                else
-                {
-                    <img src="@author.Image" style="border-radius: 100px;"/>
-                }
+                <img src="@image" style="border-radius: 100px;"/>
                 <div class="mt-5">
                     <label for="image">Change Image</label>
                     <InputFile id="image" class="form-control" OnChange="OnFileChange"></InputFile>
@@ -73,6 +66,7 @@ else
     bool loading = true;
     string buttonText = string.Empty;
     string message = "Loading author...";
+    string image = string.Empty;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -80,11 +74,12 @@ else
         {
             author = new Author { New = true };
             buttonText = "Create Author";
+            image = "user.svg";
         }
         else
         {
             var dbAuthor = (await AuthorService.GetAuthor(Id)).Data;
-            if(dbAuthor == null)
+            if (dbAuthor == null)
             {
                 message = $"Author with Id '{Id}' does not exist!";
                 return;
@@ -93,6 +88,10 @@ else
             author = dbAuthor;
             author.Editing = true;
             buttonText = "Update Author";
+
+            if (author.Image is null)
+                image = "user.svg";
+            else image = author.Image.Data;
         }
 
         loading = false;
@@ -101,14 +100,11 @@ else
     async Task OnFileChange(InputFileChangeEventArgs e)
     {
         var format = "image/png";
-        foreach (var image in e.GetMultipleFiles(int.MaxValue))
-        {
-            var resizedImage = await image.RequestImageFileAsync(format, 200, 200);
-            var buffer = new byte[resizedImage.Size];
-            await resizedImage.OpenReadStream().ReadAsync(buffer);
-            var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
-            author.Image = imageData;
-        }
+        var resizedImage = await e.File.RequestImageFileAsync(format, 200, 200);
+        var buffer = new byte[resizedImage.Size];
+        await resizedImage.OpenReadStream().ReadAsync(buffer);
+        var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+        image = imageData;
     }
 
     async void Cancel() => NavigationManager.NavigateTo("admin/authors");
@@ -117,13 +113,13 @@ else
     {
         if (author.New)
         {
-            var result = await AuthorService.AddAuthor(author);
+            var result = await AuthorService.AddAuthor(author, image);
             NavigationManager.NavigateTo($"admin/author/{result.Id}");
         }
         else
         {
             author.New = false;
-            author = await AuthorService.UpdateAuthor(author);
+            author = await AuthorService.UpdateAuthor(author, image);
             NavigationManager.NavigateTo($"admin/authors");
         }
     }

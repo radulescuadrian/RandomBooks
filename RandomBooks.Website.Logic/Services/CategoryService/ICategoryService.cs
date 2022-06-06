@@ -8,9 +8,9 @@
 
         Task AddCategory(Category category);
         Category CreateNewCategory();
-        Task DeleteCategory(int categoryId);
         Task GetAdminCategories();
         Task GetCategories();
+        Task<List<Category>> GetVisibleCategoriesList();
         Task UpdateCategory(Category category);
     }
 }

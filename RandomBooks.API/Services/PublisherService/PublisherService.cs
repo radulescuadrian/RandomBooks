@@ -26,6 +26,21 @@ public class PublisherService : IPublisherService
         return await GetPublishers();
     }
 
+    public async Task<ServiceResponse<List<Publisher>>> GetVisiblePublishers()
+    {
+        var publishers = await _ctx.Publishers
+            .Where(x => !x.Deleted)
+            .ToListAsync();
+        if (publishers == null)
+            return new ServiceResponse<List<Publisher>>
+            {
+                Success = false,
+                Message = "Publishers not found."
+            };
+
+        return new ServiceResponse<List<Publisher>> { Data = publishers };
+    }
+
     public async Task<ServiceResponse<List<Publisher>>> UpdatePublisher(Publisher publisher)
     {
         var dbpublisher = await _ctx.Publishers.FindAsync(publisher.Id);
@@ -39,23 +54,6 @@ public class PublisherService : IPublisherService
         dbpublisher.Name = publisher.Name;
         dbpublisher.Deleted = publisher.Deleted;
 
-        await _ctx.SaveChangesAsync();
-
-        return await GetPublishers();
-    }
-
-    public async Task<ServiceResponse<List<Publisher>>> DeletePublisher(int publisherId)
-    {
-        var publisher = await _ctx.Publishers.FindAsync(publisherId);
-        if (publisher == null)
-            return new ServiceResponse<List<Publisher>>
-            {
-                Success = false,
-                Message = "Publisher not found."
-            };
-
-        publisher.Editing = publisher.New = false;
-        publisher.Deleted = true;
         await _ctx.SaveChangesAsync();
 
         return await GetPublishers();

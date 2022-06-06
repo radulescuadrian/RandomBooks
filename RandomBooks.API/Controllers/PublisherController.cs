@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace RandomBooks.API.Controllers;
 
-[Route("api/[controller]"), Authorize(Roles = "Admin")]
+[Route("api/[controller]"), Authorize]
 [ApiController]
 public class PublisherController : ControllerBase
 {
@@ -15,31 +15,31 @@ public class PublisherController : ControllerBase
         _publisherService = publisherService;
     }
 
-    [HttpGet]
+    [HttpGet, Authorize(Roles = "Admin")]
     public async Task<ActionResult<ServiceResponse<List<Publisher>>>> GetPublishers()
     {
         var result = await _publisherService.GetPublishers();
         return Ok(result);
     }
 
-    [HttpPost]
+    [HttpGet("visible")]
+    public async Task<ActionResult<ServiceResponse<List<Publisher>>>> GetVisiblePublishers()
+    {
+        var result = await _publisherService.GetVisiblePublishers();
+        return Ok(result);
+    }
+
+    [HttpPost, Authorize(Roles = "Admin")]
     public async Task<ActionResult<ServiceResponse<List<Publisher>>>> AddPublisher(Publisher publisher)
     {
         var result = await _publisherService.AddPublisher(publisher);
         return Ok(result);
     }
 
-    [HttpPut]
+    [HttpPut, Authorize(Roles = "Admin")]
     public async Task<ActionResult<ServiceResponse<List<Publisher>>>> UpdatePublisher(Publisher publisher)
     {
         var result = await _publisherService.UpdatePublisher(publisher);
-        return Ok(result);
-    }
-
-    [HttpDelete("{publisherId}")]
-    public async Task<ActionResult<ServiceResponse<List<Publisher>>>> DeletePublisher(int publisherId)
-    {
-        var result = await _publisherService.DeletePublisher(publisherId);
         return Ok(result);
     }
 }

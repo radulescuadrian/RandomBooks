@@ -11,7 +11,9 @@ public class AuthorService : IAuthorService
 
     public async Task<ServiceResponse<Author>> GetAuthor(int authorId)
     {
-        var author = await _ctx.Authors.FirstOrDefaultAsync(x => x.Id == authorId);
+        var author = await _ctx.Authors
+            .Include(x => x.Image)
+            .FirstOrDefaultAsync(x => x.Id == authorId);
         if (author == null)
             return new ServiceResponse<Author>
             {
@@ -26,6 +28,7 @@ public class AuthorService : IAuthorService
     {
         var results = 5;
         var authors = await _ctx.Authors
+            .Include(x => x.Image)
             .OrderBy(x => x.Name)
             .ToListAsync();
         var pageCount = Math.Ceiling(authors.Count / (double)results);
@@ -44,18 +47,43 @@ public class AuthorService : IAuthorService
         };
     }
 
-    public async Task<ServiceResponse<Author>> AddAuthor(Author author)
+    public async Task<ServiceResponse<List<Author>>> GetVisibleAuthors()
     {
-        author.Editing = author.New = false;
-        _ctx.Authors.Add(author);
-        await _ctx.SaveChangesAsync();
+        var authors = await _ctx.Authors
+            .Where(x => !x.Deleted)
+            .ToListAsync();
+        if (authors == null)
+            return new ServiceResponse<List<Author>>
+            {
+                Success = false,
+                Message = "Authors not found."
+            };
 
-        return new ServiceResponse<Author> { Data = author };
+        return new ServiceResponse<List<Author>> { Data = authors };
     }
 
-    public async Task<ServiceResponse<Author>> UpdateAuthor(Author author)
+    public async Task<ServiceResponse<Author>> AddAuthor(AuthorEdit edit)
     {
-        var dbAuthor = await _ctx.Authors.FindAsync(author.Id);
+        edit.Author.Editing = edit.Author.New = false;
+        if (!string.IsNullOrWhiteSpace(edit.NewImage))
+            edit.Author.Image = new Blob
+            {
+                Data = edit.NewImage,
+                Type = "picture",
+                Description = "author"
+            };
+
+        _ctx.Authors.Add(edit.Author);
+        await _ctx.SaveChangesAsync();
+
+        return new ServiceResponse<Author> { Data = edit.Author };
+    }
+
+    public async Task<ServiceResponse<Author>> UpdateAuthor(AuthorEdit edit)
+    {
+        var dbAuthor = await _ctx.Authors
+            .Include(p => p.Image)
+            .FirstOrDefaultAsync(x => x.Id == edit.Author.Id);
         if (dbAuthor == null)
             return new ServiceResponse<Author>
             {
@@ -63,13 +91,26 @@ public class AuthorService : IAuthorService
                 Message = "Author not found."
             };
 
-        dbAuthor.Name = author.Name;
-        dbAuthor.Description = author.Description;
-        dbAuthor.Image = author.Image;
-        dbAuthor.Deleted = author.Deleted;
+        dbAuthor.Name = edit.Author.Name;
+        dbAuthor.Description = edit.Author.Description;
+        dbAuthor.Deleted = edit.Author.Deleted;
+        
+        if (!string.IsNullOrWhiteSpace(edit.NewImage))
+            if (dbAuthor.Image is null)
+                dbAuthor.Image = new Blob
+                {
+                    Data = edit.NewImage,
+                    Type = "picture",
+                    Description = "author"
+                };
+            else
+            {
+                dbAuthor.Image.Data = edit.NewImage;
+                dbAuthor.Image.ModifiedAt = DateTime.Now;
+            }
 
         await _ctx.SaveChangesAsync();
 
-        return new ServiceResponse<Author> { Data = author };
+        return new ServiceResponse<Author> { Data = dbAuthor };
     }
 }

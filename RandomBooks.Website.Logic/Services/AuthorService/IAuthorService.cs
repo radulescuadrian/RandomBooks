@@ -9,10 +9,10 @@
 
         event Action OnChange;
 
-        Task<Author> AddAuthor(Author author);
-        Author CreateNewAuthor();
+        Task<Author> AddAuthor(Author author, string image);
         Task<ServiceResponse<Author>> GetAuthor(int authorId);
         Task GetAuthors();
-        Task<Author> UpdateAuthor(Author author);
+        Task<List<Author>> GetVisibleAuthorsList();
+        Task<Author> UpdateAuthor(Author author, string image);
     }
 }

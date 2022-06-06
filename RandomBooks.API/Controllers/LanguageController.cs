@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace RandomBooks.API.Controllers;
 
-[Route("api/[controller]"), Authorize(Roles = "Admin")]
+[Route("api/[controller]"), Authorize]
 [ApiController]
 public class LanguageController : ControllerBase
 {
@@ -22,31 +22,24 @@ public class LanguageController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("all")]
+    [HttpGet("all"), Authorize(Roles = "Admin")]
     public async Task<ActionResult<ServiceResponse<List<Language>>>> GetAllLanguages()
     {
         var result = await _languageService.GetAllLanguages();
         return Ok(result);
     }
 
-    [HttpPost]
+    [HttpPost, Authorize(Roles = "Admin")]
     public async Task<ActionResult<ServiceResponse<List<Language>>>> AddLanguage(Language language)
     {
         var result = await _languageService.AddLanguage(language);
         return Ok(result);
     }
 
-    [HttpPut]
+    [HttpPut, Authorize(Roles = "Admin")]
     public async Task<ActionResult<ServiceResponse<List<Language>>>> UpdateCategory(Language language)
     {
         var result = await _languageService.UpdateLanguage(language);
-        return Ok(result);
-    }
-
-    [HttpDelete("{languageId}")]
-    public async Task<ActionResult<ServiceResponse<List<Language>>>> DeleteLanguage(int languageId)
-    {
-        var result = await _languageService.DeleteLanguage(languageId);
         return Ok(result);
     }
 }

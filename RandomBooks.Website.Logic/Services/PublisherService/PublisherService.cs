@@ -22,6 +22,15 @@ public class PublisherService : IPublisherService
         else Publishers = new List<Publisher>();
     }
 
+    public async Task<List<Publisher>> GetVisiblePublishersList()
+    {
+        var response = await _http.GetFromJsonAsync<ServiceResponse<List<Publisher>>>($"https://localhost:7163/api/publisher/visible");
+
+        if (response != null && response.Data != null)
+            return response.Data;
+        else return new List<Publisher>();
+    }
+
     public async Task AddPublisher(Publisher publisher)
     {
         var response = await _http.PostAsJsonAsync("https://localhost:7163/api/publisher", publisher);
@@ -38,19 +47,6 @@ public class PublisherService : IPublisherService
     public async Task UpdatePublisher(Publisher publisher)
     {
         var response = await _http.PutAsJsonAsync("https://localhost:7163/api/publisher", publisher);
-        if (response != null)
-        {
-            Publishers = (await response.Content
-                .ReadFromJsonAsync<ServiceResponse<List<Publisher>>>()).Data;
-            OnChange.Invoke();
-            return;
-        }
-        else Publishers = new List<Publisher>();
-    }
-
-    public async Task DeletePublisher(int publisherId)
-    {
-        var response = await _http.DeleteAsync($"https://localhost:7163/api/publisher/{publisherId}");
         if (response != null)
         {
             Publishers = (await response.Content

@@ -8,8 +8,8 @@
 
         Task AddPublisher(Publisher publisher);
         Publisher CreateNewPublisher();
-        Task DeletePublisher(int publisherId);
         Task GetPublishers();
+        Task<List<Publisher>> GetVisiblePublishersList();
         Task UpdatePublisher(Publisher publisher);
     }
 }

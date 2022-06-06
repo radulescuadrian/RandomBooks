@@ -25,6 +25,15 @@ public class LanguageService : ILanguageService
         else Languages = new List<Language>();
     }
 
+    public async Task<List<Language>> GetVisibleLanguagesList()
+    {
+        var response = await _http.GetFromJsonAsync<ServiceResponse<List<Language>>>("https://localhost:7163/api/language");
+
+        if (response != null && response.Data != null)
+            return response.Data;
+        else return new List<Language>();
+    }
+
     public async Task AddLanguage(Language language)
     {
         var response = await _http.PostAsJsonAsync("https://localhost:7163/api/language", language);
@@ -41,19 +50,6 @@ public class LanguageService : ILanguageService
     public async Task UpdateLanguage(Language language)
     {
         var response = await _http.PutAsJsonAsync("https://localhost:7163/api/language", language);
-        if (response != null)
-        {
-            Languages = (await response.Content
-                .ReadFromJsonAsync<ServiceResponse<List<Language>>>()).Data;
-            OnChange.Invoke();
-            return;
-        }
-        else Languages = new List<Language>();
-    }
-
-    public async Task DeleteLanguage(int languageId)
-    {
-        var response = await _http.DeleteAsync($"https://localhost:7163/api/language/{languageId}");
         if (response != null)
         {
             Languages = (await response.Content

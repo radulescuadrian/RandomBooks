@@ -53,21 +53,4 @@ public class LanguageService : ILanguageService
 
         return await GetAllLanguages();
     }
-
-    public async Task<ServiceResponse<List<Language>>> DeleteLanguage(int languageId)
-    {
-        var language = await _ctx.Languages.FindAsync(languageId);
-        if (language == null)
-            return new ServiceResponse<List<Language>>
-            {
-                Success = false,
-                Message = "Language not found."
-            };
-
-        language.Editing = language.New = false;
-        language.Deleted = true;
-        await _ctx.SaveChangesAsync();
-
-        return await GetAllLanguages();
-    }
 }

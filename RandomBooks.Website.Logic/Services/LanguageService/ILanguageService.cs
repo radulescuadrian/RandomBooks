@@ -8,8 +8,8 @@
 
         Task AddLanguage(Language language);
         Language CreateNewLanguage();
-        Task DeleteLanguage(int languageId);
         Task GetLanguages(bool getAll = false);
+        Task<List<Language>> GetVisibleLanguagesList();
         Task UpdateLanguage(Language language);
     }
 }

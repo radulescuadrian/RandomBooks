@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace RandomBooks.API.Controllers;
 
-[Route("api/[controller]"), Authorize(Roles = "Admin")]
+[Route("api/[controller]"), Authorize]
 [ApiController]
 public class AuthorController : ControllerBase
 {
@@ -15,31 +15,38 @@ public class AuthorController : ControllerBase
         _authorService = authorService;
     }
 
-    [HttpGet("{authorId}")]
+    [HttpGet("{authorId}"), Authorize(Roles = "Admin")]
     public async Task<ActionResult<ServiceResponse<Author>>> GetAuthor(int authorId)
     {
         var result = await _authorService.GetAuthor(authorId);
         return Ok(result);
     }
 
-    [HttpGet("~/api/Authors/{page}")]
+    [HttpGet("visible")]
+    public async Task<ActionResult<ServiceResponse<List<Author>>>> GetVisibleAuthors()
+    {
+        var result = await _authorService.GetVisibleAuthors();
+        return Ok(result);
+    }
+
+    [HttpGet("~/api/Authors/{page}"), Authorize(Roles = "Admin")]
     public async Task<ActionResult<ServiceResponse<AuthorListResult>>> GetAuthors(int page = 1)
     {
         var result = await _authorService.GetAuthors(page);
         return Ok(result);
     }
 
-    [HttpPost]
-    public async Task<ActionResult<ServiceResponse<List<Author>>>> AddAuthor(Author author)
+    [HttpPost, Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<Author>>> AddAuthor(AuthorEdit edit)
     {
-        var result = await _authorService.AddAuthor(author);
+        var result = await _authorService.AddAuthor(edit);
         return Ok(result);
     }
 
-    [HttpPut]
-    public async Task<ActionResult<ServiceResponse<List<Author>>>> UpdateAuthor(Author author)
+    [HttpPut, Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<Author>>> UpdateAuthor(AuthorEdit edit)
     {
-        var result = await _authorService.UpdateAuthor(author);
+        var result = await _authorService.UpdateAuthor(edit);
         return Ok(result);
     }
 }

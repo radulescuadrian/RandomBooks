@@ -1,0 +1,97 @@
+﻿@page "/admin/books"
+@layout Shared.Layouts.AdminLayout
+@attribute [Authorize(Roles = "Admin")]
+@inject IBookService BookService
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+<div class="row">
+    <h3 class="col">Books</h3>
+    <div class="col">
+        <button class="btn bg-black text-white float-end" @onclick="CreateNewBook">
+            <i class="oi oi-plus"></i> Add new book
+        </button>
+    </div>
+</div>
+<hr />
+
+@if (BookService.AdminBooks is null || BookService.AdminBooks.Count == 0)
+{
+    <h2 class="mx-auto my-auto">@BookService.Message</h2>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Title</th>
+                <th>Variants</th>
+                <th>Price</th>
+                <th>Deleted</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in BookService.AdminBooks)
+            {
+                <tr class="@IsDeleted(book)">
+                    <td>
+                        @if (book.Image is null)
+                        {
+                            <img src="user.svg" class="my-auto"/>
+                        }
+                        else
+                        {
+                            <img src="@book.Image.Data" class="my-auto" style="border-radius: 35px;"/>
+                        }
+                    </td>
+                    <td class="fw-bold">@book.Title</td>
+                    <td>
+                        @foreach (var variant in book.Variants)
+                        {
+                            <span class="@(variant.Deleted ? "text-danger" : string.Empty)">@variant.BookType.Name</span><br />
+                        }
+                    </td>
+                    <td>
+                        @foreach (var variant in book.Variants)
+                        {
+                            if (variant.Offer > 0)
+                            {
+                                <span class="text-success fw-bold">$ @variant.Offer</span><br />
+                            }
+                            else
+                            {
+                                <span>$ @variant.Price</span><br />
+                            }
+                        }
+                    </td>
+                    <td>
+                        <span>@(book.Deleted ? "✔️" : "")</span>
+                    </td>
+                    <td>
+                        <button class="btn bg-black text-white" style="margin-top: 15.5px;" @onclick="(() => EditBook(book.Id))">
+                            <i class="oi oi-pencil"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await BookService.GetAdminBooks();
+        BookService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose() => BookService.OnChange -= StateHasChanged;
+
+    private void CreateNewBook() => NavigationManager.NavigateTo($"admin/book");
+
+    private void EditBook(int bookId) => NavigationManager.NavigateTo($"admin/book/{bookId}");
+
+    private string IsDeleted(Book book) => book.Deleted ? "text-danger" : string.Empty;
+}

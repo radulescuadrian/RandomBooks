@@ -1,0 +1,435 @@
+﻿@page "/admin/book"
+@page "/admin/book/{id:int}"
+@layout Shared.Layouts.AdminLayout
+@attribute [Authorize(Roles = "Admin")]
+@inject IBookService BookService
+@inject NavigationManager NavigationManager
+
+@if (loading)
+{
+    <div style="text-align: center;">
+        <h2>@message</h2>
+    </div>
+}
+else
+{
+    if (book.Editing)
+    {
+        <h3>Edit book</h3>
+    }
+    else if (book.New)
+    {
+        <h3>Create new book</h3>
+    }
+    <br />
+
+    <EditForm Model="book" OnValidSubmit="AddOrUpdateBook">
+        <DataAnnotationsValidator />
+        <div class="row">
+            <div class="col-4">
+                <img src="@image"/>
+                <div class="mt-5">
+                    <label for="image">Change Image</label>
+                    <InputFile id="image" class="form-control mb-0" OnChange="OnFileChange"></InputFile>
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="row">
+                    <div class="col-6">
+                        <label for="title">Title</label>
+                        <InputText id="title" class="form-control" @bind-Value="book.Title"></InputText>
+                    </div>
+                    <div class="col-6">
+                        <label for="isbn">ISBN</label>
+                        <InputText id="isbn" class="form-control" @bind-Value="book.ISBN"></InputText>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <label for="pages">Pages</label>
+                        <InputNumber id="pages" class="form-control" @bind-Value="book.Pages"></InputNumber>
+                    </div>
+                    <div class="col-6" style="padding-top: 4px;">
+                        <MudDatePicker Label="Published On" @bind-Date="@book.PublishedAt"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <label for="description">Description</label>
+                        <textarea id="description" class="form-control" @bind="book.Description" style="height: 112px;"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr />
+
+        <div class="row">
+            <div class="col-6">
+                <label for="category">Category</label>
+                <InputSelect id="category" @bind-Value="book.CategoryId" class="form-control">
+                    @foreach (var category in BookService.Categories)
+                    {
+                        <option value="@category.Id.ToString()">@category.Name</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-6">
+                <label for="publisher">Publisher</label>
+                <InputSelect id="publisher" @bind-Value="book.PublisherId" class="form-control">
+                    @foreach (var publisher in BookService.Publishers)
+                    {
+                        <option value="@publisher.Id.ToString()">@publisher.Name</option>
+                    }
+                </InputSelect>
+            </div>
+        </div>
+        <hr />
+
+        <div class="row mb-3">
+            <div class="col-6"  style="padding-right:20px; border-right: 1px solid #ccc;">
+                <label class="mb-3">Authors</label>
+                <input class="form-control mb-2" 
+                       @bind-value="authorSearch"
+                       @bind-value:event="oninput"
+                       type="search"
+                       list="authorList"
+                       @onkeyup="HandleAuthorSearch"
+                       placeholder="Search Authors"/>
+                <datalist id="authorList">
+                    @foreach (var author in authorSearchResults)
+                    {
+                        <option>@author.Name</option>
+                    }
+                </datalist>
+
+                @if (book.Authors is null || book.Authors.Count == 0)
+                {
+                    <p>No authors selected</p>
+                }
+                else if (BookService.Authors != null)
+                {
+                    <div class="grid-container">
+                        @foreach (var authorLink in book.Authors.Where(x => !x.Deleted))
+                        {
+                            <div class="grid-item row p-1">
+                                <p class="mx-0 px-0 pe-2" style="margin: auto; width: auto;">
+                                    @BookService.Authors.FirstOrDefault(x => x.Id == authorLink.AuthorId).Name
+                                </p>
+                                <button type="button" class="col btn bg-white text-black p-0" @onclick="(() => RemoveAuthor(authorLink.AuthorId))"
+                                        style="max-width: 30px;">
+                                    <i class="oi oi-x"></i>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            
+            <div class="col-6">
+                <label class="mb-3">Languages</label>
+                <input class="form-control mb-2" 
+                       @bind-value="languageSearch"
+                       @bind-value:event="oninput"
+                       type="search"
+                       list="languageList"
+                       @onkeyup="HandleLanguageSearch"
+                       placeholder="Search Languages"/>
+                <datalist id="languageList">
+                    @foreach (var language in languageSearchResults)
+                    {
+                        <option>@language.Name</option>
+                    }
+                </datalist>
+
+                @if (book.Languages is null || book.Languages.Count == 0)
+                {
+                    <p>No languages selected</p>
+                }
+                else if (BookService.Languages != null)
+                {
+                    <div class="grid-container">
+                        @foreach (var languageLink in book.Languages.Where(x => !x.Deleted))
+                        {
+                            <div class="grid-item row p-1" style="max-width: 60px;">
+                                <p class="col my-auto p-0 pe-2" style="max-width: 30px; font-weight: 900;">
+                                    @BookService.Languages.FirstOrDefault(x => x.Id == languageLink.LanguageId).DisplayName
+                                </p>
+                                <button type="button" class="col btn bg-white text-black p-0" @onclick="(() => RemoveLanguage(languageLink.LanguageId))"
+                                        style="max-width: 30px;">
+                                    <i class="oi oi-x"></i>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+        <hr />
+
+        <div class="row">
+            <div class="col">
+                <label>Variants</label>
+                <div class="header">
+                    <div class="col">Book Type</div>
+                    <div class="col">Price</div>
+                    <div class="col">Offer</div>
+                    <div class="col">Stock</div>
+                    <div class="col"></div>
+                </div>
+                @foreach (var variant in book.Variants.Where(x => !x.Deleted))
+                {
+                    <div class="row">
+                        <div class="col">
+                            <InputSelect class="form-control"
+                                         ValueExpression="@(()=>variant.BookTypeId)" 
+                                         Value="@variant.BookTypeId" 
+                                         ValueChanged="@((int value) => 
+                                         {
+                                             foreach (var v in book.Variants)
+                                                 if(v.BookTypeId == value)
+                                                     return;
+
+                                             variant.BookTypeId = value; 
+                                             edited = true;
+                                         })">
+                                @foreach (var bookType in BookService.BookTypes)
+                                {
+                                    <option value="@bookType.Id.ToString()">
+                                        @bookType.Name
+                                    </option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col">
+                            <InputNumber @bind-Value="variant.Price" class="form-control"></InputNumber>
+                        </div>
+                        <div class="col">
+                            <div class="row py-0">
+                                <InputCheckbox @bind-Value="variant.HasOffer" class="form-check-input my-auto" style="height: 26px; margin-right: 4px;"></InputCheckbox>
+                                <InputNumber @bind-Value="variant.Offer" disabled="@(!variant.HasOffer)" class="form-control col"></InputNumber>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <InputNumber @bind-Value="variant.Stock" class="form-control"></InputNumber>
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn bg-black text-white" @onclick="(() => RemoveVariant(variant.BookTypeId))">
+                                <i class="oi oi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+                @if (edited == true && book.Variants.Where(x=>!x.Deleted).ToList().Count < BookService.BookTypes.Count())
+                {
+                    <button type="button" class="btn bg-black text-white" @onclick="AddVariant">
+                        <i class="oi oi-plus me-1"></i> Add Variant
+                    </button>
+                }
+            </div>
+        </div>
+        <hr />
+
+
+        @if (!book.New)
+        {
+            <div class="mb-4">
+                <div>
+                    <label for="deleted" class="form-check-label me-2 text-danger">Deleted</label>
+                    <InputCheckbox id="deleted" @bind-Value="book.Deleted" class="form-check-input"></InputCheckbox>
+                </div>
+                <div>
+                    <label for="featured" class="form-check-label me-2">Featured</label>
+                    <InputCheckbox id="featured" @bind-Value="book.Featured" class="form-check-input"></InputCheckbox>
+                </div>
+            </div>
+        }
+        <div class="row">
+            <button type="button" class="btn bg-black text-white col me-5" @onclick="Cancel">Go back</button>
+            <button class="btn btn-success col">Save</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    Book book = new();
+    bool loading = true;
+    string buttonText = string.Empty;
+    string message = "Loading book...";
+    string image = string.Empty;
+
+    // author properties
+    List<Author> authorSearchResults = new();
+    string authorSearch = string.Empty;
+    Author selectedAuthor;
+
+    // language search properties
+    List<Language> languageSearchResults = new();
+    string languageSearch = string.Empty;
+    Language selectedLanguage;
+
+    // variant properties
+    bool edited = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await BookService.GetDropdowns();
+
+        if (Id == 0)
+        {
+            book = new Book { New = true };
+            buttonText = "Create Book";
+            image = "book.svg";
+        }
+        else
+        {
+            var dbBook = (await BookService.GetBook(Id)).Data;
+            if (dbBook == null)
+            {
+                message = $"Book with Id '{Id}' does not exist!";
+                return;
+            }
+
+            book = dbBook;
+            book.Editing = true;
+            buttonText = "Update Author";
+
+            if (book.Image is null)
+                image = "book.svg";
+            else image = book.Image.Data;
+        }
+
+        loading = false;
+    }
+
+    async void Cancel() => NavigationManager.NavigateTo("admin/books");
+
+    async void AddOrUpdateBook()
+    {
+        if (book.New)
+        {
+            var result = await BookService.AddBook(book, image);
+            NavigationManager.NavigateTo($"admin/book/{result.Id}");
+        }
+        else
+        {
+            book.New = false;
+            book = await BookService.UpdateBook(book, image);
+            NavigationManager.NavigateTo($"admin/books");
+        }
+    }
+
+    async Task OnFileChange(InputFileChangeEventArgs e)
+    {
+        var format = "image/png";
+        var resizedImage = await e.File.RequestImageFileAsync(format, 200, 200);
+        var buffer = new byte[resizedImage.Size];
+        await resizedImage.OpenReadStream().ReadAsync(buffer);
+        var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+        image = imageData;
+    }
+
+    public async Task HandleAuthorSearch(KeyboardEventArgs args)
+    {
+        if (args.Key == null)
+        {
+            if(!string.IsNullOrWhiteSpace(authorSearch) && (authorSearchResults != null || authorSearchResults.Count != 0))
+            {
+                selectedAuthor = authorSearchResults.FirstOrDefault(a => a.Name == authorSearch);
+
+                if (book.Authors.FirstOrDefault(x => x.AuthorId == selectedAuthor.Id) != null)
+                    book.Authors.FirstOrDefault(x => x.AuthorId == selectedAuthor.Id).Deleted = false;
+                else book.Authors.Add(new BookAuthors { New = true, AuthorId = selectedAuthor.Id });
+
+                authorSearch = string.Empty;
+            }
+        }
+        else
+        {
+            if (authorSearch.Length > 1)
+                authorSearchResults = BookService.Authors
+                    .Where(x => x.Name.Contains(authorSearch, StringComparison.InvariantCultureIgnoreCase))
+                    .Take(10)
+                    .ToList();
+            else authorSearchResults = BookService.Authors
+                    .Take(10)
+                    .ToList();
+        }
+    }
+
+    void RemoveAuthor(int authorId)
+    {
+        var author = book.Authors.Find(x => x.AuthorId == authorId);
+        if (author is null)
+            return;
+
+        if (author.New)
+            book.Authors.Remove(author);
+        else author.Deleted = true;
+    }
+
+    public async Task HandleLanguageSearch(KeyboardEventArgs args)
+    {
+        if (args.Key == null)
+        {
+            if(!string.IsNullOrWhiteSpace(languageSearch) && (languageSearchResults != null || languageSearchResults.Count != 0))
+            {
+                selectedLanguage = languageSearchResults.FirstOrDefault(a => a.Name == languageSearch);
+
+                if (book.Languages.FirstOrDefault(x => x.LanguageId == selectedLanguage.Id) != null)
+                    book.Languages.FirstOrDefault(x => x.LanguageId == selectedLanguage.Id).Deleted = false;
+                else book.Languages.Add(new BookLanguages { New = true, LanguageId = selectedLanguage.Id });
+
+                languageSearch = string.Empty;
+            }
+        }
+        else
+        {
+            if (languageSearch.Length > 1)
+                languageSearchResults = BookService.Languages
+                    .Where(x => x.Name.Contains(languageSearch, StringComparison.InvariantCultureIgnoreCase))
+                    .Take(10)
+                    .ToList();
+            else languageSearchResults = BookService.Languages
+                    .Take(10)
+                    .ToList();
+        }
+    }
+
+    void RemoveLanguage(int languageId)
+    {
+        var language = book.Languages.Find(x => x.LanguageId == languageId);
+        if (language is null)
+            return;
+
+        if (language.New)
+            book.Languages.Remove(language);
+        else language.Deleted = true;
+    }
+
+    void AddVariant()
+    {
+        edited = false;
+        if (book.New)
+            book.Variants.Add(new BookVariants { New = true, BookId = book.Id });
+        else
+        {
+            edited = true;
+            book.Variants.FirstOrDefault(x => x.Deleted).Deleted = false;
+        }
+    }
+
+    void RemoveVariant(int bookTypeId)
+    {
+        edited = true;
+        var variant = book.Variants.Find(v => v.BookTypeId == bookTypeId);
+        if (variant == null)
+            return;
+
+        if (variant.New)
+            book.Variants.Remove(variant);
+        else variant.Deleted = true;
+    }
+}

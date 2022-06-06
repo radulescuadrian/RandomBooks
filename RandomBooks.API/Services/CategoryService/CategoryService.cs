@@ -14,6 +14,13 @@ public class CategoryService : ICategoryService
         var categories = await _ctx.Categories
             .Where(x => !x.Deleted)
             .ToListAsync();
+        if (categories == null)
+            return new ServiceResponse<List<Category>>
+            {
+                Success = false,
+                Message = "Categories not found."
+            };
+
         return new ServiceResponse<List<Category>> { Data = categories };
     }
 

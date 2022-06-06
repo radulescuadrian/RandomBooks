@@ -74,14 +74,16 @@ namespace RandomBooks.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Image")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("ImageId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ImageId");
 
                     b.ToTable("Authors");
                 });
@@ -97,6 +99,10 @@ namespace RandomBooks.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -111,6 +117,158 @@ namespace RandomBooks.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Blobs");
+                });
+
+            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Book", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Featured")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ISBN")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ImageId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Pages")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("PublishedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PublisherId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ImageId");
+
+                    b.HasIndex("PublisherId");
+
+                    b.ToTable("Books");
+                });
+
+            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.BookAuthors", b =>
+                {
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AuthorId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("BookId", "AuthorId");
+
+                    b.HasIndex("AuthorId");
+
+                    b.ToTable("BookAuthors");
+                });
+
+            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.BookLanguages", b =>
+                {
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LanguageId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("BookId", "LanguageId");
+
+                    b.HasIndex("LanguageId");
+
+                    b.ToTable("BookLanguages");
+                });
+
+            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.BookType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BookTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Paperback"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "E-Book"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Audiobook"
+                        });
+                });
+
+            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.BookVariants", b =>
+                {
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BookTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasOffer")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("Offer")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.HasKey("BookId", "BookTypeId");
+
+                    b.HasIndex("BookTypeId");
+
+                    b.ToTable("BookVariants");
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Category", b =>
@@ -271,10 +429,6 @@ namespace RandomBooks.Data.Migrations
                     b.Property<int>("ExpirationYear")
                         .HasColumnType("int");
 
-                    b.Property<string>("Last4Numbers")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -302,6 +456,97 @@ namespace RandomBooks.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Author", b =>
+                {
+                    b.HasOne("RandomBooks.Shared.DatabaseModels.Blob", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId");
+
+                    b.Navigation("Image");
+                });
+
+            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Book", b =>
+                {
+                    b.HasOne("RandomBooks.Shared.DatabaseModels.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RandomBooks.Shared.DatabaseModels.Blob", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId");
+
+                    b.HasOne("RandomBooks.Shared.DatabaseModels.Publisher", "Publisher")
+                        .WithMany()
+                        .HasForeignKey("PublisherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Image");
+
+                    b.Navigation("Publisher");
+                });
+
+            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.BookAuthors", b =>
+                {
+                    b.HasOne("RandomBooks.Shared.DatabaseModels.Author", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RandomBooks.Shared.DatabaseModels.Book", "Book")
+                        .WithMany("Authors")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Book");
+                });
+
+            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.BookLanguages", b =>
+                {
+                    b.HasOne("RandomBooks.Shared.DatabaseModels.Book", "Book")
+                        .WithMany("Languages")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RandomBooks.Shared.DatabaseModels.Language", "Language")
+                        .WithMany()
+                        .HasForeignKey("LanguageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Language");
+                });
+
+            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.BookVariants", b =>
+                {
+                    b.HasOne("RandomBooks.Shared.DatabaseModels.Book", "Book")
+                        .WithMany("Variants")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RandomBooks.Shared.DatabaseModels.BookType", "BookType")
+                        .WithMany()
+                        .HasForeignKey("BookTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("BookType");
+                });
+
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.User_Card", b =>
                 {
                     b.HasOne("RandomBooks.Shared.DatabaseModels.User", null)
@@ -309,6 +554,15 @@ namespace RandomBooks.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Book", b =>
+                {
+                    b.Navigation("Authors");
+
+                    b.Navigation("Languages");
+
+                    b.Navigation("Variants");
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.User", b =>

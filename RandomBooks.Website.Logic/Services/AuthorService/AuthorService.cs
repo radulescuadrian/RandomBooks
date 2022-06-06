@@ -39,27 +39,38 @@ public class AuthorService : IAuthorService
         OnChange?.Invoke();
     }
 
-    public async Task<Author> AddAuthor(Author author)
+    public async Task<List<Author>> GetVisibleAuthorsList()
     {
-        var response = await _http.PostAsJsonAsync("https://localhost:7163/api/author", author);
+        var response = await _http.GetFromJsonAsync<ServiceResponse<List<Author>>>($"https://localhost:7163/api/author/visible");
+
+        if (response != null && response.Data != null)
+            return response.Data;
+        else return new List<Author>();
+    }
+
+    public async Task<Author> AddAuthor(Author author, string image)
+    {
+        var edit = new AuthorEdit
+        {
+            Author = author,
+            NewImage = image
+        };
+
+        var response = await _http.PostAsJsonAsync("https://localhost:7163/api/author", edit);
         return (await response.Content
             .ReadFromJsonAsync<ServiceResponse<Author>>()).Data;
     }
 
-    public async Task<Author> UpdateAuthor(Author author)
+    public async Task<Author> UpdateAuthor(Author author, string image)
     {
-        var response = await _http.PutAsJsonAsync("https://localhost:7163/api/author", author);
+        var edit = new AuthorEdit
+        {
+            Author = author,
+            NewImage = image
+        };
+
+        var response = await _http.PutAsJsonAsync("https://localhost:7163/api/author", edit);
         return (await response.Content
             .ReadFromJsonAsync<ServiceResponse<Author>>()).Data;
-    }
-
-    public Author CreateNewAuthor()
-    {
-        var newAuthor = new Author { New = true, Editing = true, Image = "user.svg" };
-
-        Authors.Insert(0, newAuthor);
-        OnChange.Invoke();
-
-        return newAuthor;
     }
 }

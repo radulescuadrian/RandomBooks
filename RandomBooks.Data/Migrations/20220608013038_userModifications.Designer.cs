@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RandomBooks.Data.Context;
 
@@ -11,9 +12,10 @@ using RandomBooks.Data.Context;
 namespace RandomBooks.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220608013038_userModifications")]
+    partial class userModifications
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,9 +40,6 @@ namespace RandomBooks.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("CustomerDetailsId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("Deleted")
                         .HasColumnType("bit");
 
@@ -48,13 +47,16 @@ namespace RandomBooks.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Zip")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerDetailsId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Addresses");
                 });
@@ -331,9 +333,6 @@ namespace RandomBooks.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("CustomerDetailsId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("Deleted")
                         .HasColumnType("bit");
 
@@ -351,9 +350,12 @@ namespace RandomBooks.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerDetailsId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("CustomerCards");
                 });
@@ -371,6 +373,7 @@ namespace RandomBooks.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Firstname")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("ImageId")
@@ -380,12 +383,14 @@ namespace RandomBooks.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Lastname")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -393,52 +398,10 @@ namespace RandomBooks.Data.Migrations
                     b.HasIndex("ImageId");
 
                     b.HasIndex("UserId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("CustomerDetails");
-                });
-
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.EmployeeDetails", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Firstname")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("HireDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ImageId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Lastname")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ImageId");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("EmployeeDetails");
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Language", b =>
@@ -532,9 +495,9 @@ namespace RandomBooks.Data.Migrations
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Address", b =>
                 {
-                    b.HasOne("RandomBooks.Shared.DatabaseModels.CustomerDetails", null)
+                    b.HasOne("RandomBooks.Shared.DatabaseModels.User", null)
                         .WithMany("Addresses")
-                        .HasForeignKey("CustomerDetailsId");
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Author", b =>
@@ -630,9 +593,9 @@ namespace RandomBooks.Data.Migrations
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.CustomerCard", b =>
                 {
-                    b.HasOne("RandomBooks.Shared.DatabaseModels.CustomerDetails", null)
+                    b.HasOne("RandomBooks.Shared.DatabaseModels.User", null)
                         .WithMany("Cards")
-                        .HasForeignKey("CustomerDetailsId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -645,24 +608,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasOne("RandomBooks.Shared.DatabaseModels.User", null)
                         .WithOne("CustomerDetails")
-                        .HasForeignKey("RandomBooks.Shared.DatabaseModels.CustomerDetails", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Image");
-                });
-
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.EmployeeDetails", b =>
-                {
-                    b.HasOne("RandomBooks.Shared.DatabaseModels.Blob", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId");
-
-                    b.HasOne("RandomBooks.Shared.DatabaseModels.User", null)
-                        .WithOne("EmployeeDetails")
-                        .HasForeignKey("RandomBooks.Shared.DatabaseModels.EmployeeDetails", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RandomBooks.Shared.DatabaseModels.CustomerDetails", "UserId");
 
                     b.Navigation("Image");
                 });
@@ -676,19 +622,13 @@ namespace RandomBooks.Data.Migrations
                     b.Navigation("Variants");
                 });
 
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.CustomerDetails", b =>
+            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.User", b =>
                 {
                     b.Navigation("Addresses");
 
                     b.Navigation("Cards");
-                });
 
-            modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.User", b =>
-                {
                     b.Navigation("CustomerDetails")
-                        .IsRequired();
-
-                    b.Navigation("EmployeeDetails")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

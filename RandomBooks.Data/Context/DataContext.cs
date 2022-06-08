@@ -72,7 +72,9 @@ public class DataContext : DbContext
 
     public DbSet<Blob> Blobs { get; set; }
     public DbSet<User> Users { get; set; }
-    public DbSet<User_Card> UserCards { get; set; }
+    public DbSet<CustomerCard> CustomerCards { get; set; }
+    public DbSet<CustomerDetails> CustomerDetails { get; set; }
+    public DbSet<EmployeeDetails> EmployeeDetails { get; set; }
     public DbSet<Address> Addresses { get; set; }
     public DbSet<Status> Statuses { get; set; }
 

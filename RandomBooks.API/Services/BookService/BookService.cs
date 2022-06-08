@@ -130,25 +130,56 @@ public class BookService : IBookService
         return new ServiceResponse<List<Book>> { Data = books };
     }
 
-    public async Task<ServiceResponse<List<Book>>> GetAdminBooks()
+    public async Task<ServiceResponse<BookListResult>> GetAdminBooks(int page)
     {
-        var books = await _ctx.Books
-            .Include(x => x.Variants.Where(v => !v.Deleted))
-            .ThenInclude(x => x.BookType)
-            .Include(x => x.Authors.Where(a => !a.Deleted))
-            .ThenInclude(x => x.Author)
-            .Include(x => x.Languages.Where(l => !l.Deleted))
-            .ThenInclude(x => x.Language)
-            .Include(x => x.Image)
-            .ToListAsync();
+        int results;
+        double pageCount;
+        var books = new List<Book>();
+        if (page == 0)
+        {
+            results = 1;
+            pageCount = 1;
+            books = await _ctx.Books
+                .Include(x => x.Variants.Where(v => !v.Deleted))
+                .ThenInclude(x => x.BookType)
+                .Include(x => x.Authors.Where(a => !a.Deleted))
+                .ThenInclude(x => x.Author)
+                .Include(x => x.Languages.Where(l => !l.Deleted))
+                .ThenInclude(x => x.Language)
+                .Include(x => x.Image)
+                .OrderBy(x => x.Title)
+                .ToListAsync();
+        }
+        else
+        {
+            results = 8;
+            books = await _ctx.Books
+                .Include(x => x.Variants.Where(v => !v.Deleted))
+                .ThenInclude(x => x.BookType)
+                .Include(x => x.Authors.Where(a => !a.Deleted))
+                .ThenInclude(x => x.Author)
+                .Include(x => x.Languages.Where(l => !l.Deleted))
+                .ThenInclude(x => x.Language)
+                .Include(x => x.Image)
+                .OrderBy(x => x.Title)
+                .ToListAsync();
+            pageCount = Math.Ceiling(books.Count / (double)results);
+        }
+
         if (books == null || books.Count == 0)
-            return new ServiceResponse<List<Book>>
+            return new ServiceResponse<BookListResult>
             {
                 Success = false,
                 Message = "No books found"
             };
 
-        return new ServiceResponse<List<Book>> { Data = books };
+        return new ServiceResponse<BookListResult> { Data = new BookListResult
+        {
+            Books = page != 0 ? books.Skip((page - 1) * results).Take(results).ToList() : 
+                                books,
+            Page = page,
+            Pages = (int)pageCount
+        }};
     }
 
     public async Task<ServiceResponse<Book>> AddBook(BookEdit edit)
@@ -172,6 +203,7 @@ public class BookService : IBookService
 
         _ctx.Books.Add(edit.Book);
         await _ctx.SaveChangesAsync();
+
         return new ServiceResponse<Book> { Data = edit.Book };
     }
 

@@ -2,12 +2,10 @@
 
 namespace RandomBooks.Shared.DatabaseModels;
 
-public class User_Card
+public class CustomerCard
 {
     public int Id { get; set; }
-
-    [Required]
-    public int UserId { get; set; }
+    public int CustomerDetailsId { get; set; }
 
     [Required]
     public string Name { get; set; } = string.Empty;
@@ -20,4 +18,6 @@ public class User_Card
 
     [Required]
     public int ExpirationYear { get; set; }
+
+    public bool Deleted { get; set; }
 }

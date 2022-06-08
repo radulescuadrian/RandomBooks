@@ -1,9 +1,11 @@
 global using Microsoft.EntityFrameworkCore;
 global using RandomBooks.Data.Context;
 global using RandomBooks.Shared;
+global using RandomBooks.Shared.Authentication;
 global using RandomBooks.Shared.DatabaseModels;
 global using RandomBooks.Shared.DTOs;
 global using RandomBooks.API.Services.AuthService;
+global using RandomBooks.API.Services.UserService;
 global using RandomBooks.API.Services.BookService;
 global using RandomBooks.API.Services.CategoryService;
 global using RandomBooks.API.Services.LanguageService;
@@ -22,6 +24,7 @@ builder.Services.AddControllers();
 
 // RegisterServices
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ILanguageService, LanguageService>();

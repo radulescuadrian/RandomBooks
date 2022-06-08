@@ -25,7 +25,6 @@ public class AuthorService : IAuthorService
     public async Task GetAuthors()
     {
         var response = await _http.GetFromJsonAsync<ServiceResponse<AuthorListResult>>($"https://localhost:7163/api/authors/{Page}");
-
         if (response != null && response.Data != null)
         {
             Authors = response.Data.Authors;

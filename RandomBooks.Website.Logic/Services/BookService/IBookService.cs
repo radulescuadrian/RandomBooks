@@ -9,13 +9,16 @@
         string Message { get; set; }
         List<Category> Categories { get; set; }
         List<Publisher> Publishers { get; set; }
+        int Page { get; set; }
+        int PageCount { get; set; }
 
         event Action OnChange;
 
         Task<Book> AddBook(Book book, string image);
-        Task GetAdminBooks();
+        Task GetAdminBooks(bool all = false);
         Task<ServiceResponse<Book>> GetBook(int bookId);
         Task GetDropdowns();
+        void InitializePages();
         Task<Book> UpdateBook(Book book, string image);
     }
 }

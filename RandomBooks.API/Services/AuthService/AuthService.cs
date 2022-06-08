@@ -33,23 +33,45 @@ public class AuthService : IAuthService
             response.Success = false;
             response.Message = "Wrong password.";
         }
+        else if (user.Deactivated)
+            return new ServiceResponse<string>
+            {
+                Success = false,
+                Message = "This account has been deactivated. Please contact an administrator."
+            };
         else response.Data = CreateToken(user);
 
         return response;
     }
 
-    public async Task<ServiceResponse<string>> Register(User user, string password)
+    public async Task<ServiceResponse<string>> Register(UserRegister register)
     {
-        if (await UserExists(user.Username))
+        if (await UserExists(register.Username))
             return new ServiceResponse<string>
             {
                 Success = false,
                 Message = "User already exists."
             };
 
-        CreatePasswordHash(password, out byte[] passwordHash);
+        if (await EmailExists(register.Email))
+            return new ServiceResponse<string>
+            {
+                Success = false,
+                Message = "Email already in use."
+            };
 
-        user.Password = passwordHash;
+        CreatePasswordHash(register.Password, out byte[] passwordHash);
+
+        var user = new User
+        {
+            Username = register.Username,
+            Password = passwordHash,
+            CustomerDetails = new CustomerDetails
+            {
+                Email = register.Email,
+                JoinDate = DateTime.Now
+            }
+        };
 
         _ctx.Users.Add(user);
         await _ctx.SaveChangesAsync();
@@ -100,6 +122,14 @@ public class AuthService : IAuthService
     public async Task<bool> UserExists(string username)
     {
         if (await _ctx.Users.AnyAsync(user => user.Username.Equals(username)))
+            return true;
+
+        return false;
+    }
+
+    public async Task<bool> EmailExists(string email)
+    {
+        if (await _ctx.CustomerDetails.AnyAsync(x => x.Email.ToLower().Equals(email.ToLower())))
             return true;
 
         return false;

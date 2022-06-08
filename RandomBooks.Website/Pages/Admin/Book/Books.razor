@@ -21,77 +21,299 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th></th>
-                <th>Title</th>
-                <th>Variants</th>
-                <th>Price</th>
-                <th>Deleted</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var book in BookService.AdminBooks)
-            {
-                <tr class="@IsDeleted(book)">
-                    <td>
-                        @if (book.Image is null)
-                        {
-                            <img src="user.svg" class="my-auto"/>
-                        }
-                        else
-                        {
-                            <img src="@book.Image.Data" class="my-auto" style="border-radius: 35px;"/>
-                        }
-                    </td>
-                    <td class="fw-bold">@book.Title</td>
-                    <td>
-                        @foreach (var variant in book.Variants)
-                        {
-                            <span class="@(variant.Deleted ? "text-danger" : string.Empty)">@variant.BookType.Name</span><br />
-                        }
-                    </td>
-                    <td>
-                        @foreach (var variant in book.Variants)
-                        {
-                            if (variant.Offer > 0)
+    <input class="form-control mb-2" 
+           @bind-value="bookSearch"
+           @bind-value:event="oninput"
+           type="search"
+           list="bookList"
+           @onkeyup="HandleBookSearch"
+           placeholder="Search Languages"/>
+    <datalist id="bookList">
+        @foreach (var book in bookSuggestionResults)
+        {
+            <option>@book.Title</option>
+        }
+    </datalist>
+    if (!string.IsNullOrWhiteSpace(bookSearch))
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Title</th>
+                    <th>Variants</th>
+                    <th>Price</th>
+                    <th>Deleted</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <Virtualize Items="searchResults" Context="book">
+                    <tr class="@IsDeleted(book)">
+                        <td>
+                            @if (book.Image is null)
                             {
-                                <span class="text-success fw-bold">$ @variant.Offer</span><br />
+                                <img src="book.svg" class="my-auto"/>
                             }
                             else
                             {
-                                <span>$ @variant.Price</span><br />
+                                <img src="@book.Image.Data" class="my-auto"/>
                             }
-                        }
-                    </td>
-                    <td>
-                        <span>@(book.Deleted ? "✔️" : "")</span>
-                    </td>
-                    <td>
-                        <button class="btn bg-black text-white" style="margin-top: 15.5px;" @onclick="(() => EditBook(book.Id))">
-                            <i class="oi oi-pencil"></i>
-                        </button>
-                    </td>
+                        </td>
+                        <td class="fw-bold">@book.Title</td>
+                        <td>
+                            @foreach (var variant in book.Variants)
+                            {
+                                <span class="@(variant.Deleted ? "text-danger" : string.Empty)">@variant.BookType.Name</span><br />
+                            }
+                        </td>
+                        <td>
+                            @foreach (var variant in book.Variants)
+                            {
+                                if (variant.HasOffer)
+                                {
+                                    <span class="text-success fw-bold">$ @variant.Offer</span><br />
+                                }
+                                else
+                                {
+                                    <span>$ @variant.Price</span><br />
+                                }
+                            }
+                        </td>
+                        <td>
+                            <span>@(book.Deleted ? "✔️" : "")</span>
+                        </td>
+                        <td>
+                            <button class="btn bg-black text-white" style="margin-top: 15.5px;" @onclick="(() => EditBook(book.Id))">
+                                <i class="oi oi-pencil"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Title</th>
+                    <th>Variants</th>
+                    <th>Price</th>
+                    <th>Deleted</th>
+                    <th></th>
                 </tr>
+            </thead>
+            <tbody>
+                <Virtualize Items="BookService.AdminBooks" Context="book">
+                    <tr class="@IsDeleted(book)">
+                        <td>
+                            @if (book.Image is null)
+                            {
+                                <img src="book.svg" class="my-auto"/>
+                            }
+                            else
+                            {
+                                <img src="@book.Image.Data" class="my-auto"/>
+                            }
+                        </td>
+                        <td class="fw-bold">@book.Title</td>
+                        <td>
+                            @foreach (var variant in book.Variants)
+                            {
+                                <span class="@(variant.Deleted ? "text-danger" : string.Empty)">@variant.BookType.Name</span><br />
+                            }
+                        </td>
+                        <td>
+                            @foreach (var variant in book.Variants)
+                            {
+                                if (variant.HasOffer)
+                                {
+                                    <span class="text-success fw-bold">$ @variant.Offer</span><br />
+                                }
+                                else
+                                {
+                                    <span>$ @variant.Price</span><br />
+                                }
+                            }
+                        </td>
+                        <td>
+                            <span>@(book.Deleted ? "✔️" : "")</span>
+                        </td>
+                        <td>
+                            <button class="btn bg-black text-white" style="margin-top: 15.5px;" @onclick="(() => EditBook(book.Id))">
+                                <i class="oi oi-pencil"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
+
+        <div class="mx-auto" style="text-align: center; @GetSpace()">
+            <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isFirstDisabled
+                        @onclick="(() => SelectPage(1))">
+                <p style="margin: 0; font-weight: 900;"><i class="oi oi-chevron-left"></i>&nbsp First</p>
+            </button>
+
+            @if (BookService.PageCount <= 5)
+            {
+                for (var i = 1; i <= BookService.PageCount; i++)
+                {
+                    var page = i;
+                    <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                            style="margin: 2px;"
+                            @onclick="(() => SelectPage(page))">@i</button>
+                }
             }
-        </tbody>
-    </table>
+            else if (BookService.Page < 4)
+            {
+                for (var i = 1; i <= 4; i++)
+                {
+                    var page = i;
+                    <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                            style="margin: 2px;"
+                            @onclick="(() => SelectPage(page))">@i</button>
+                }
+                <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+            }
+            else if (BookService.Page > BookService.PageCount - 3)
+            {
+                <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+                for (var i = BookService.PageCount - 3; i <= BookService.PageCount; i++)
+                {
+                    var page = i;
+                    <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                            style="margin: 2px;"
+                            @onclick="(() => SelectPage(page))">@i</button>
+                }
+            }
+            else
+            {
+                <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+                for (var i = BookService.Page - 2; i <= BookService.Page + 2; i++)
+                {
+                    var page = i;
+                    <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                            style="margin: 2px;"
+                            @onclick="(() => SelectPage(page))">@i</button>
+                }
+                <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+            }
+
+            <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isLastDisabled
+                    @onclick="(() => SelectPage(BookService.PageCount))">
+                <p style="margin: 0; font-weight: 900;">Last &nbsp<i class="oi oi-chevron-right"></i></p>
+            </button>
+        </div>
+    }
 }
 
 @code {
+    bool isFirstDisabled = true;
+    bool isLastDisabled = false;
+
+    // book search
+    List<Book> bookSuggestionResults = new();
+    string bookSearch = string.Empty;
+    List<Book> searchResults = new();
+
     protected override async Task OnInitializedAsync()
     {
+        BookService.InitializePages();
+
+        Thread.Sleep(100);
         await BookService.GetAdminBooks();
+
+        if (BookService.PageCount == 1)
+        {
+            isFirstDisabled = true;
+            isLastDisabled = true;
+        }
         BookService.OnChange += StateHasChanged;
     }
 
     public void Dispose() => BookService.OnChange -= StateHasChanged;
+
+    private async Task SelectPage(int page)
+    {
+        BookService.Page = page;
+        await BookService.GetAdminBooks();
+
+        if (page == 1)
+        {
+            isFirstDisabled = true;
+            isLastDisabled = false;
+        }
+        else if (page == BookService.PageCount)
+        {
+            isFirstDisabled = false;
+            isLastDisabled = true;
+        }
+        else
+        {
+            isFirstDisabled = false;
+            isLastDisabled = false;
+        }
+    }
 
     private void CreateNewBook() => NavigationManager.NavigateTo($"admin/book");
 
     private void EditBook(int bookId) => NavigationManager.NavigateTo($"admin/book/{bookId}");
 
     private string IsDeleted(Book book) => book.Deleted ? "text-danger" : string.Empty;
+
+    private string GetSpace()
+    {
+        if (BookService.AdminBooks.Count() < 8)
+            return $"margin-top: {16 + 87 * (8 - BookService.AdminBooks.Count())}px;";
+        return string.Empty;
+    }
+
+    public async Task HandleBookSearch(KeyboardEventArgs args)
+    {
+        if (BookService.AdminBooks is null || BookService.AdminBooks.Count() == 0)
+            return;
+
+        if (args.Key == null)
+        {
+            if(!string.IsNullOrWhiteSpace(bookSearch) && (bookSuggestionResults != null || bookSuggestionResults.Count != 0))
+            {
+                bookSuggestionResults = BookService.AdminBooks
+                    .Where(x => x.Title.Contains(bookSearch, StringComparison.InvariantCultureIgnoreCase))
+                    .Take(10)
+                    .ToList();
+
+                searchResults = BookService.AdminBooks
+                    .Where(x => x.Title.Contains(bookSearch, StringComparison.InvariantCultureIgnoreCase))
+                    .ToList();
+            }
+        }
+        else
+        {
+            if (bookSearch.Length >= 1)
+            {
+                await BookService.GetAdminBooks(true);
+                bookSuggestionResults = BookService.AdminBooks
+                    .Where(x => x.Title.Contains(bookSearch, StringComparison.InvariantCultureIgnoreCase))
+                    .Take(10)
+                    .ToList();
+
+                searchResults = BookService.AdminBooks
+                    .Where(x => x.Title.Contains(bookSearch, StringComparison.InvariantCultureIgnoreCase))
+                    .ToList();
+            }
+            else
+            {
+                await BookService.GetAdminBooks(false);
+                bookSuggestionResults = BookService.AdminBooks
+                    .Take(10)
+                    .ToList();
+
+                searchResults = bookSuggestionResults;
+            }
+        }
+    }
 }

@@ -29,8 +29,7 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<ServiceResponse<string>>> Register(UserRegister request)
     {
-        var response = await _authService.Register(new User { Username = request.Username },
-                                                   request.Password);
+        var response = await _authService.Register(request);
 
         if (!response.Success)
             return BadRequest(response);

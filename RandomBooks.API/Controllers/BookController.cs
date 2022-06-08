@@ -59,10 +59,10 @@ public class BookController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("admin"), Authorize(Roles = "Admin")]
-    public async Task<ActionResult<ServiceResponse<List<Book>>>> GetAdminBooks()
+    [HttpGet("admin/{page}"), Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<BookListResult>>> GetAdminBooks(int page = 1)
     {
-        var result = await _bookService.GetAdminBooks();
+        var result = await _bookService.GetAdminBooks(page);
         return Ok(result);
     }
 

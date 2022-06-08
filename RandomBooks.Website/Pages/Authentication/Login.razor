@@ -63,10 +63,10 @@
 
                 case "Courier":
                 case "Employee": 
-                    {
-                        await LocalStorage.RemoveItemAsync("token");
-                        await AuthenticationStateProvider.GetAuthenticationStateAsync();
-                        errorMessage = "Please use a different account"; 
+                {
+                    await LocalStorage.RemoveItemAsync("token");
+                    await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                    errorMessage = "Please use a different account"; 
                     return;
                 }
             }

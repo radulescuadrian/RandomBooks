@@ -1,0 +1,38 @@
+﻿@page "/admin/customer/{id:int}"
+@layout Shared.Layouts.AdminLayout
+@attribute [Authorize(Roles = "Admin")]
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
+
+@if (loading)
+{
+    <div style="text-align: center;">
+        <h2>@message</h2>
+    </div>
+}
+else
+{
+    <h2>@customer.Username</h2>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    User customer = new();
+    bool loading = true;
+    string message = "Loading author...";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var dbUser = (await UserService.GetUser(Id)).Data;
+        if (dbUser == null)
+        {
+            message = $"User with Id '{Id}' does not exist!";
+            return;
+        }
+
+        customer = dbUser;
+        loading = false;
+    }
+}

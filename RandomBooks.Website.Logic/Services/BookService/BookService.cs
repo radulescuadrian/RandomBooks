@@ -1,5 +1,4 @@
-﻿using Fare;
-using RandomBooks.Website.Logic.Services.AuthorService;
+﻿using RandomBooks.Website.Logic.Services.AuthorService;
 using RandomBooks.Website.Logic.Services.CategoryService;
 using RandomBooks.Website.Logic.Services.LanguageService;
 using RandomBooks.Website.Logic.Services.PublisherService;
@@ -27,6 +26,8 @@ public class BookService : IBookService
     public event Action OnChange;
 
     public string Message { get; set; } = "Loading books...";
+    public int Page { get; set; } = 1;
+    public int PageCount { get; set; } = 0;
 
     public BookService(HttpClient http, IAuthorService authorService, ICategoryService categoryService, IPublisherService publisherService, ILanguageService languageService)
     {
@@ -46,17 +47,39 @@ public class BookService : IBookService
         Publishers = await _publisherService.GetVisiblePublishersList();
     }
 
+    public void InitializePages()
+    {
+        Message = "Loading books...";
+        Page = 1;
+        PageCount = 0;
+    }
+
     public async Task<ServiceResponse<Book>> GetBook(int bookId)
     {
         var response = await _http.GetFromJsonAsync<ServiceResponse<Book>>($"https://localhost:7163/api/book/{bookId}");
         return response;
     }
 
-    public async Task GetAdminBooks()
+    public async Task GetAdminBooks(bool all = false)
     {
-        var response = await _http.GetFromJsonAsync<ServiceResponse<List<Book>>>("https://localhost:7163/api/book/admin");
-        if (response != null && response.Data != null)
-            AdminBooks = response.Data;
+        ServiceResponse<BookListResult> response;
+
+        if (all)
+        {
+            response = await _http.GetFromJsonAsync<ServiceResponse<BookListResult>>($"https://localhost:7163/api/book/admin/0");
+            if (response != null && response.Data != null)
+                AdminBooks = response.Data.Books;
+        }
+        else 
+        {
+            response = await _http.GetFromJsonAsync<ServiceResponse<BookListResult>>($"https://localhost:7163/api/book/admin/{Page}");
+            if (response != null && response.Data != null)
+            {
+                AdminBooks = response.Data.Books;
+                Page = response.Data.Page;
+                PageCount = response.Data.Pages;
+            }
+        }
 
         if (Authors.Count == 0)
             Message = "No books found";

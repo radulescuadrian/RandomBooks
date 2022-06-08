@@ -15,7 +15,7 @@
                     <button @onclick="ToggleUserMenu"
                             @onfocusout="HideUserMenu"
                             class="btn btn-secondary dropdown-toggle user-button bg-white text-black">
-                        Hello, @username!
+                        Hello, <span class="text-danger fw-bold">@username</span>!
                     </button>
                     <div class="dropdown-menu dropdown-menu-end @UserMenuCssClass">
                         <a href="profile" class="dropdown-item text-black">Profile</a>

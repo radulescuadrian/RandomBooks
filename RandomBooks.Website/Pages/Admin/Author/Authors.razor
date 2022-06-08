@@ -58,23 +58,62 @@ else
         }
     </div>
 
-    <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isFirstDisabled
+    <div class="mx-auto" style="text-align: center;">
+        <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isFirstDisabled
                 @onclick="(() => SelectPage(1))">
-        <p style="margin: 0; font-weight: 900;"><i class="oi oi-chevron-left"></i>&nbsp First</p>
-    </button>
+            <p style="margin: 0; font-weight: 900;"><i class="oi oi-chevron-left"></i>&nbsp First</p>
+        </button>
 
-    for (var i = 1; i <= AuthorService.PageCount; i++)
-    {
-        var page = i;
-        <button class="btn @(i == AuthorService.Page ? "bg-black text-white" : "btn-outline-black")"
-                style="margin: 2px;"
-                @onclick="(() => SelectPage(page))">@i</button>
-    }
+        @if (AuthorService.PageCount <= 5)
+        {
+            for (var i = 1; i <= AuthorService.PageCount; i++)
+            {
+                var page = i;
+                <button class="btn @(i == AuthorService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
+            }
+        }
+        else if (AuthorService.Page < 4)
+        {
+            for (var i = 1; i <= 4; i++)
+            {
+                var page = i;
+                <button class="btn @(i == AuthorService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
+            }
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+        }
+        else if (AuthorService.Page > AuthorService.PageCount - 3)
+        {
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+            for (var i = AuthorService.PageCount - 3; i <= AuthorService.PageCount; i++)
+            {
+                var page = i;
+                <button class="btn @(i == AuthorService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
+            }
+        }
+        else
+        {
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+            for (var i = AuthorService.Page - 2; i <= AuthorService.Page + 2; i++)
+            {
+                var page = i;
+                <button class="btn @(i == AuthorService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
+            }
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+        }
 
-    <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isLastDisabled
-            @onclick="(() => SelectPage(AuthorService.PageCount))">
-        <p style="margin: 0; font-weight: 900;">Last &nbsp<i class="oi oi-chevron-right"></i></p>
-    </button>
+        <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isLastDisabled
+                @onclick="(() => SelectPage(AuthorService.PageCount))">
+            <p style="margin: 0; font-weight: 900;">Last &nbsp<i class="oi oi-chevron-right"></i></p>
+        </button>
+    </div>
 }
 
 @code {
@@ -85,6 +124,11 @@ else
     {
         AuthorService.Page = 1;
         await AuthorService.GetAuthors();
+        if (AuthorService.PageCount == 1)
+        {
+            isFirstDisabled = true;
+            isLastDisabled = true;
+        }
         AuthorService.OnChange += StateHasChanged;
     }
 

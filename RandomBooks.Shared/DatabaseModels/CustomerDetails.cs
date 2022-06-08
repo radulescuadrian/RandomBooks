@@ -1,4 +1,6 @@
-﻿namespace RandomBooks.Shared.DatabaseModels;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace RandomBooks.Shared.DatabaseModels;
 
 public class CustomerDetails
 {
@@ -13,4 +15,18 @@ public class CustomerDetails
 
     public List<Address> Addresses { get; set; } = new List<Address>();
     public List<CustomerCard> Cards { get; set; } = new List<CustomerCard>();
+
+    [NotMapped]
+    public bool Editing { get; set; } = false;
+
+    public CustomerDetails Clone()
+    {
+        return new CustomerDetails
+        {
+            Firstname = Firstname,
+            Lastname = Lastname,
+            Email = Email,
+            PhoneNumber = PhoneNumber
+        };
+    }
 }

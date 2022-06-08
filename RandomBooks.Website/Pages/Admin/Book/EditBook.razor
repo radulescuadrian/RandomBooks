@@ -310,13 +310,13 @@ else
     {
         if (book.New)
         {
-            var result = await BookService.AddBook(book, image);
+            var result = await BookService.AddBook(book, image == "book.svg" ? string.Empty : image);
             NavigationManager.NavigateTo($"admin/book/{result.Id}");
         }
         else
         {
             book.New = false;
-            book = await BookService.UpdateBook(book, image);
+            book = await BookService.UpdateBook(book, image == "book.svg" ? string.Empty : image);
             NavigationManager.NavigateTo($"admin/books");
         }
     }

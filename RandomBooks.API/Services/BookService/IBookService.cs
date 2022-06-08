@@ -8,7 +8,7 @@
         Task<ServiceResponse<Book>> GetBook(int bookId);
         Task<ServiceResponse<List<Book>>> GetBooks();
         Task<ServiceResponse<List<BookType>>> GetBookTypes();
-        Task<ServiceResponse<List<Book>>> GetFeaturedBooks();
+        Task<ServiceResponse<BookListResult>> GetFeaturedBooks(int page);
         Task<ServiceResponse<List<Language>>> GetLanguages();
         Task<ServiceResponse<Book>> UpdateBook(BookEdit edit);
     }

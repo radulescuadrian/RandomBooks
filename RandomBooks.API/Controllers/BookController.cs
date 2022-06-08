@@ -52,10 +52,10 @@ public class BookController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("featured")]
-    public async Task<ActionResult<ServiceResponse<List<Book>>>> GetFeaturedBooks()
+    [HttpGet("featured/{page}")]
+    public async Task<ActionResult<ServiceResponse<BookListResult>>> GetFeaturedBooks(int page = 1)
     {
-        var result = await _bookService.GetFeaturedBooks();
+        var result = await _bookService.GetFeaturedBooks(page);
         return Ok(result);
     }
 

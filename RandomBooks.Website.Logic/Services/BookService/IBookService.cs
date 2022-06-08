@@ -11,6 +11,7 @@
         List<Publisher> Publishers { get; set; }
         int Page { get; set; }
         int PageCount { get; set; }
+        List<Book> Books { get; set; }
 
         event Action OnChange;
 
@@ -18,6 +19,7 @@
         Task GetAdminBooks(bool all = false);
         Task<ServiceResponse<Book>> GetBook(int bookId);
         Task GetDropdowns();
+        Task GetFeaturedBooks();
         void InitializePages();
         Task<Book> UpdateBook(Book book, string image);
     }

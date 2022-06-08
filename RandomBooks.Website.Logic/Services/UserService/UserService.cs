@@ -24,6 +24,7 @@ public class UserService : IUserService
         Page = 1;
         PageCount = 0;
     }
+
     public async Task<ServiceResponse<User>> GetUser(int userId)
     {
         var response = await _http.GetFromJsonAsync<ServiceResponse<User>>($"https://localhost:7163/api/user/{userId}");

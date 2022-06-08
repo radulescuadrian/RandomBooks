@@ -1,7 +1,491 @@
 ﻿@page "/profile"
+@attribute [Authorize(Roles = "Customer")]
+@inject ICustomerService CustomerService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
 
-<h3>Profile</h3>
+<h2>Profile</h2>
+<hr />
+
+@if (CustomerService.User == null)
+{
+    <h2 class="mx-auto my-auto">Loading user details...</h2>
+}
+else
+{
+    <div class="box mb-5" style="position: relative; height: 326px; width: 894px; margin: 0 auto;">
+        <div class="float-end" style="position: absolute; right: 20px;">
+            @if (CustomerService.User.Editing)
+            {
+                <button class="btn bg-black text-white" @onclick="CancelEditing">
+                    Cancel
+                </button>
+                <button class="btn btn-success" @onclick="UpdateProfile">
+                    Save
+                </button>
+            }
+            else
+            {
+                <button class="btn bg-black text-white float-end"
+                        style="height: 38px; width: 75px; padding: 0;"
+                        @onclick="Edit">
+                    <i class="oi oi-pencil me-1"></i> Edit
+                </button>
+            }
+        </div>
+
+        <div class="row mx-auto">
+            <div class="col-4 p-0">
+                @if (CustomerService.User.Editing)
+                {
+                    <img src="@CustomerService.TempImage"/>
+                }
+                else
+                {
+                    <img src="@CustomerService.Image"/>
+                }
+            </div>
+            <div class="col-8">
+                <div class="center" style="height: 100%;">
+                    <div style="display: flex;">
+                        <div class="ms-9" style="padding: 16px;">
+                            <h5 class="mb-5">Firstname</h5>
+                            <h5 class="mb-5">Lastname</h5>
+                            <h5 class="mb-5">Email</h5>
+                            <h5>Phone Number</h5>
+                        </div>
+                        <div class="@(CustomerService.User.Editing ? "p-2" : "p-3")">
+                            @if (CustomerService.User.Editing)
+                            {
+                                <EditForm Model="CustomerService.TempUser">
+                                    <InputText class="form-control" style="margin-bottom: 7px;" @bind-Value="CustomerService.TempUser.Firstname" />
+                                    <InputText class="form-control" style="margin-bottom: 7px;" @bind-Value="CustomerService.TempUser.Lastname" />
+                                    <InputText class="form-control" style="margin-bottom: 7px;" @bind-Value="CustomerService.TempUser.Email" />
+                                    <InputText class="form-control" @bind-Value="CustomerService.TempUser.PhoneNumber" />
+                                </EditForm>
+                            }
+                            else
+                            {
+                                if (CustomerService.User.Firstname is null)
+                                {
+                                    <h5 class="mb-5 fw-light" style="color: darkgray;">- not set -</h5>
+                                }
+                                else
+                                {
+                                    <h5 class="mb-5 fw-light">@CustomerService.User.Firstname</h5>
+                                }
+
+                                if (CustomerService.User.Lastname is null)
+                                {
+                                    <h5 class="mb-5 fw-light" style="color: darkgray;">- not set -</h5>
+                                }
+                                else
+                                {
+                                    <h5 class="mb-5 fw-light">@CustomerService.User.Lastname</h5>
+                                }
+
+                                if (CustomerService.User.Email is null)
+                                {
+                                    <h5 class="mb-5 fw-light" style="color: darkgray;">- not set -</h5>
+                                }
+                                else
+                                {
+                                    <h5 class="mb-5 fw-light">@CustomerService.User.Email</h5>
+                                }
+
+                                if (CustomerService.User.PhoneNumber is null)
+                                {
+                                    <h5 class="mb-5 fw-light" style="color: darkgray;">- not set -</h5>
+                                }
+                                else
+                                {
+                                    <h5 class="mb-5 fw-light">@CustomerService.User.PhoneNumber</h5>
+                                }
+                            }
+                        </div>
+                    </div>
+                    @if (CustomerService.User.Editing)
+                    {
+                        <div class="center ms-5" style="position: absolute; bottom: 0;">
+                            <InputFile class="form-control" style="margin-bottom: 35px;" OnChange="OnFileChange"></InputFile>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (CustomerService.User.Addresses is null || CustomerService.User.Addresses.Count() == 0)
+    {
+        <div class="row">
+            <h3>Addresses</h3>
+            <h4 style="color: darkgray;">Sorry we couldn't find any addresses. 
+                <button class="btn bg-black text-white fw-bold" @onclick="AddAddress">Add one ?</button>
+            </h4>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex">
+            <h3 class="my-auto">Addresses</h3>
+            <button class="btn bg-black text-white fw-bold ms-5" @onclick="AddAddress">Add Address</button>
+        </div>
+        <div class="grid-container">
+            @foreach (var address in CustomerService.User.Addresses.Where(x => !x.Deleted))
+            {
+                <div class="grid-item p-1 showDetails">
+                    <div class="row mx-auto mb-5" 
+                         style="@(address.Editing ? "margin-bottom: 10px!important;" : "")">
+                        @if (address.Editing)
+                        {
+                            <button class="btn bg-black text-white ms-auto"
+                                    style="height: 25px; width: 65px; padding: 0;"
+                                    @onclick="CancelEditAddress">
+                                Cancel
+                            </button>
+                            <button class="btn btn-success ms-2"
+                                    style="height: 25px; width: 25px; padding: 0;"
+                                    @onclick="(() => SaveAddress(address))">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn bg-black hide text-white ms-auto"
+                                style="height: 25px; width: 25px; padding: 0;"
+                                @onclick="(() => EditAddress(address))">
+                            <i class="oi oi-pencil"></i>
+                            </button>
+                            <button class="btn btn-danger hide ms-2"
+                                    style="height: 25px; width: 25px; padding: 0;"
+                                    @onclick="(() => DeleteAddress(address.Id))">
+                                <i class="oi oi-x"></i>
+                            </button>
+                        }
+                    </div>
+                    @if (address.Editing)
+                    {
+                        <EditForm Model="editAddress">
+                            <div class="row mx-auto">
+                                <div class="col-6 pe-0" style="width: 68.23px; display: table;">
+                                    <p class="fw-bold text-start my-auto"
+                                       style="display: table-cell; vertical-align: middle;">
+                                        Country
+                                    </p>
+                                </div>
+                                <InputText class="col form-control" style="width: 120px !important;" @bind-Value="editAddress.Country" />                   
+                            </div>
+                            <div class="row mx-auto">
+                                <div class="col-6 pe-0" style="width: 68.23px; display: table;">
+                                    <p class="fw-bold text-start my-auto"
+                                       style="display: table-cell; vertical-align: middle;">
+                                        City
+                                    </p>
+                                </div>
+                                <InputText class="col form-control" style="width: 120px !important;" @bind-Value="editAddress.City" />  
+                            </div>
+                            <div class="row mx-auto">
+                                <div class="col-6 pe-0" style="width: 68.23px; display: table;">
+                                    <p class="fw-bold text-start my-auto"
+                                       style="display: table-cell; vertical-align: middle;">
+                                        Street
+                                    </p>
+                                </div>
+                                <InputText class="col form-control" style="width: 120px !important;" @bind-Value="editAddress.Street" />  
+                            </div>
+                            <div class="row mx-auto">
+                                <div class="col-6 pe-0" style="width: 68.23px; display: table;">
+                                    <p class="fw-bold text-start my-auto"
+                                       style="display: table-cell; vertical-align: middle;">
+                                        Zip
+                                    </p>
+                                </div>
+                                <InputText class="col form-control" style="width: 120px !important;" @bind-Value="editAddress.Zip" />  
+                            </div>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        <div class="row mx-auto">
+                            <div class="col-6 pe-0">
+                                <p class="fw-bold text-start">Country</p>
+                            </div>
+                            <div class="col-6 ps-1">
+                                <p class="text-start" style="width: 80px;">@address.Country</p>
+                            </div>                   
+                        </div>
+                        <div class="row mx-auto">
+                            <div class="col-6 pe-0">
+                                <p class="fw-bold text-start">City</p>
+                            </div>
+                            <div class="col-6 ps-1">
+                                <p class="text-start">@address.City</p>
+                            </div> 
+                        </div>
+                        <div class="row mx-auto">
+                            <div class="col-6 pe-0">
+                                <p class="fw-bold text-start">Street</p>
+                            </div>
+                            <div class="col-6 ps-1">
+                                <p class="text-start">@address.Street</p>
+                            </div>  
+                        </div>
+                        <div class="row mx-auto">
+                            <div class="col-6 pe-0">
+                                <p class="fw-bold text-start">Zip</p>
+                            </div>
+                            <div class="col-6 ps-1">
+                                <p class="text-start">@address.Zip</p>
+                            </div> 
+                        </div>   
+                    }
+                </div>
+            }
+        </div>
+    }
+    <hr />
+    
+    @if (CustomerService.User.Cards is null || CustomerService.User.Cards.Count() == 0)
+    {
+        <div class="row">
+            <h3>Cards</h3>
+            <h4 style="color: darkgray;">You don't have any cards. 
+                <button class="btn bg-black text-white fw-bold" @onclick="AddCard">Add one ?</button>
+            </h4>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex">
+            <h3 class="my-auto">Cards</h3>
+            <button class="btn bg-black text-white fw-bold ms-5" @onclick="AddCard">Add Card</button>
+        </div>
+        <div class="grid-container">
+            @foreach (var card in CustomerService.User.Cards.Where(x => !x.Deleted))
+            {
+                <div class="grid-item p-1 showDetails" style="padding: 12px !important;">
+                    <div class="row mx-auto mb-5" 
+                         style="@(card.Editing ? "margin-bottom: 10px!important;" : "")">
+                        @if (card.Editing)
+                        {
+                            <button class="btn bg-black text-white ms-auto"
+                                    style="height: 25px; width: 65px; padding: 0;"
+                                    @onclick="CancelEditCard">
+                                Cancel
+                            </button>
+                            <button class="btn btn-success ms-2"
+                                    style="height: 25px; width: 25px; padding: 0;"
+                                    @onclick="(() => SaveCard(card))">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn bg-black hide text-white ms-auto"
+                                style="height: 25px; width: 25px; padding: 0;"
+                                @onclick="(() => EditCard(card))">
+                            <i class="oi oi-pencil"></i>
+                            </button>
+                            <button class="btn btn-danger hide ms-2"
+                                    style="height: 25px; width: 25px; padding: 0;"
+                                    @onclick="(() => DeleteCard(card.Id))">
+                                <i class="oi oi-x"></i>
+                            </button>
+                        }
+                    </div>
+                    @if (card.Editing)
+                    {
+                        <EditForm Model="editCard">
+                            <DataAnnotationsValidator></DataAnnotationsValidator>
+                            <div class="row mx-auto">
+                                <div class="col-3 pe-0" style="display: table;">
+                                    <p class="fw-bold text-start my-auto"
+                                       style="display: table-cell; vertical-align: middle;">
+                                        Number
+                                    </p>
+                                </div>
+                                <InputText class="col form-control" style="width: 120px !important;" @bind-Value="editCard.Number" />                   
+                            </div>
+                            <div class="row mx-auto mb-2">
+                                <div class="col-3 pe-0" style="display: table;">
+                                    <p class="fw-bold text-start my-auto"
+                                       style="display: table-cell; vertical-align: middle;">
+                                        Name
+                                    </p>
+                                </div>
+                                <InputText class="col form-control" style="width: 120px !important;" @bind-Value="editCard.Name" />  
+                            </div>
+                            <div class="row mx-auto">
+                                <div class="col-6">
+                                    <div class="col-6 pe-0" style="display: table;">
+                                        <p class="fw-bold text-start my-auto" style="width: 120px;">
+                                            Expiry Month
+                                        </p>
+                                    </div>
+                                    <InputNumber class="col form-control" style="width: 120px !important;" @bind-Value="editCard.ExpirationMonth" />  
+                                </div>
+                                <div class="col-6">
+                                    <div class="col-6 pe-0" style="display: table;">
+                                        <p class="fw-bold text-start my-auto" style="width: 120px;">
+                                            Expiry Year
+                                        </p>
+                                    </div>
+                                    <InputNumber class="col form-control" style="width: 120px !important;" @bind-Value="editCard.ExpirationYear" />  
+                                </div>
+                            </div>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        <div class="mx-auto">
+                            <div class="row pe-0">
+                                <p class="fw-bold text-start fw-bold">@card.Name</p>
+                            </div>
+                            <div class="row ps-1">
+                                <p class="text-start">**** **** **** @(card.Number.Substring(card.Number.Length - 4))</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+}
+
+
 
 @code {
+    Address editAddress = null;
+    CustomerCard editCard = null;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await CustomerService.GetProfile();
+
+        CustomerService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose() => CustomerService.OnChange -= StateHasChanged;
+
+    private void Edit() => CustomerService.User.Editing = true;
+
+    private void CancelEditing()
+    {
+        CustomerService.TempImage = CustomerService.Image;
+        CustomerService.TempUser = CustomerService.User.Clone();
+        CustomerService.User.Editing = false;
+    }
+
+    async void UpdateProfile()
+    {
+        var result = await CustomerService.UpdateProfile(CustomerService.TempUser, CustomerService.TempImage == "user.svg" ? string.Empty : CustomerService.TempImage);
+        if (result != "OK")
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Something went wrong\n{result}");
+            return;
+        }
+
+        await CustomerService.GetProfile();
+    }
+
+    async Task OnFileChange(InputFileChangeEventArgs e)
+    {
+        var format = "image/png";
+        var resizedImage = await e.File.RequestImageFileAsync(format, 200, 200);
+        var buffer = new byte[resizedImage.Size];
+        await resizedImage.OpenReadStream().ReadAsync(buffer);
+        var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+        CustomerService.TempImage = imageData;
+    }
+
+    async void DeleteAddress(int addressId)
+    {
+        var response = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this address?");
+        if (response)
+        {
+            var result = await CustomerService.DeleteAddress(addressId);
+            if(result != "OK")
+                await JSRuntime.InvokeVoidAsync("alert", $"Something went wrong\n{result}");
+        }
+    }
+
+    void AddAddress() => editAddress = CustomerService.CreateNewAddress();
+
+    void EditAddress(Address address)
+    {
+        CustomerService.User.Addresses.ForEach(x => x.Editing = false);
+
+        address.Editing = true;
+        editAddress = address;
+        StateHasChanged();
+    }
+
+    async void CancelEditAddress()
+    {
+        if (editAddress.New)
+            CustomerService.User.Addresses.Remove(editAddress);
+        
+        await CustomerService.GetProfile();
+    }
+
+    async void SaveAddress(Address address)
+    {
+        if (address.New)
+        {
+            var resposne = await CustomerService.AddAddress(address);
+            if(resposne != "OK")
+                await JSRuntime.InvokeVoidAsync("alert", $"Something went wrong\n{resposne}");
+        }
+        else
+        {
+            var resposne = await CustomerService.UpdateAddress(address);
+            if(resposne != "OK")
+                await JSRuntime.InvokeVoidAsync("alert", $"Something went wrong\n{resposne}");
+        }
+    }
+
+    async void DeleteCard(int cardId)
+    {
+        var response = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this card?");
+        if (response)
+        {
+            var result = await CustomerService.DeleteAddress(cardId);
+            if(result != "OK")
+                await JSRuntime.InvokeVoidAsync("alert", $"Something went wrong\n{result}");
+        }
+    }
+
+    void AddCard() => editCard = CustomerService.CreateNewCard();
+
+    void EditCard(CustomerCard card)
+    {
+        CustomerService.User.Cards.ForEach(x => x.Editing = false);
+
+        card.Editing = true;
+        editCard = card;
+    }
+
+    async void CancelEditCard()
+    {
+        if (editCard.New)
+            CustomerService.User.Cards.Remove(editCard);
+        
+        await CustomerService.GetProfile();
+    }
+
+    async void SaveCard(CustomerCard card)
+    {
+        if (card.New)
+        {
+            var resposne = await CustomerService.AddCard(card);
+            if(resposne != "OK")
+                await JSRuntime.InvokeVoidAsync("alert", $"Something went wrong\n{resposne}");
+        }
+        else
+        {
+            var resposne = await CustomerService.UpdateCard(card);
+            if(resposne != "OK")
+                await JSRuntime.InvokeVoidAsync("alert", $"Something went wrong\n{resposne}");
+        }
+    }
 }

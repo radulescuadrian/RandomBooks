@@ -1,1 +1,43 @@
-﻿
+﻿img {
+    width: 284px;
+    height: 284px;
+    border-radius: 142px;
+}
+
+.box {
+    padding: 20px 20px;
+    border: 1px solid;
+    border-radius: 15px;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.grid-container {
+    display: flex;
+    flex-wrap: wrap;
+    overflow: hidden;
+    padding: 10px;
+}
+
+    .grid-container > * {
+        flex: none;
+        margin: 6px;
+    }
+
+.grid-item {
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    border-radius: 5px;
+    text-align: center;
+}
+
+.hide {
+    display: none;
+}
+
+.showDetails:hover button {
+    display: block;
+}

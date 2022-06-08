@@ -1,6 +1,7 @@
 global using Microsoft.AspNetCore.Components.Authorization;
 global using RandomBooks.Website.Logic.Services.AuthService;
 global using RandomBooks.Website.Logic.Services.UserService;
+global using RandomBooks.Website.Logic.Services.CustomerService;
 global using RandomBooks.Website.Logic.Services.BookService;
 global using RandomBooks.Website.Logic.Services.CategoryService;
 global using RandomBooks.Website.Logic.Services.LanguageService;
@@ -23,6 +24,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ILanguageService, LanguageService>();

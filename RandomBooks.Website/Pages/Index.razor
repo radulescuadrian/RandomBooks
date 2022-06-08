@@ -1,10 +1,145 @@
 ﻿@page "/"
+@inject IBookService BookService
+@implements IDisposable
 
 <PageTitle>Random Books</PageTitle>
 
-<h1>Hello, world!</h1>
-<p>Welcome to your new app.</p>
+<center>
+    <h2>Featured Boooks</h2>
+</center>
+
+@if(BookService.Books == null || BookService.Books.Count == 0)
+{
+    <center>@BookService.Message</center>
+}
+else
+{
+    <div class="container">
+        @foreach (var book in BookService.Books)
+        {
+            <div class="featured-product">
+                <div>
+                    <a href="#">
+                        @if (book.Image != null)
+                        {
+                            <img src="@book.Image.Data">
+                        }
+                        else
+                        {
+                            <img src="book.svg">
+                        }
+                    </a>
+                </div>
+                <h4><a href="#">@book.Title</a></h4>
+                @if(book.Variants != null && book.Variants.Count > 0)
+                {
+                    <h5 class="price">
+                        $@book.Variants[0].Price
+                    </h5>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="mx-auto" style="text-align: center;">
+            <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isFirstDisabled
+                        @onclick="(() => SelectPage(1))">
+                <p style="margin: 0; font-weight: 900;"><i class="oi oi-chevron-left"></i>&nbsp First</p>
+            </button>
+
+            @if (BookService.PageCount <= 5)
+            {
+                for (var i = 1; i <= BookService.PageCount; i++)
+                {
+                    var page = i;
+                    <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                            style="margin: 2px;"
+                            @onclick="(() => SelectPage(page))">@i</button>
+                }
+            }
+            else if (BookService.Page < 4)
+            {
+                for (var i = 1; i <= 4; i++)
+                {
+                    var page = i;
+                    <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                            style="margin: 2px;"
+                            @onclick="(() => SelectPage(page))">@i</button>
+                }
+                <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+            }
+            else if (BookService.Page > BookService.PageCount - 3)
+            {
+                <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+                for (var i = BookService.PageCount - 3; i <= BookService.PageCount; i++)
+                {
+                    var page = i;
+                    <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                            style="margin: 2px;"
+                            @onclick="(() => SelectPage(page))">@i</button>
+                }
+            }
+            else
+            {
+                <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+                for (var i = BookService.Page - 2; i <= BookService.Page + 2; i++)
+                {
+                    var page = i;
+                    <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                            style="margin: 2px;"
+                            @onclick="(() => SelectPage(page))">@i</button>
+                }
+                <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+            }
+
+            <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isLastDisabled
+                    @onclick="(() => SelectPage(BookService.PageCount))">
+                <p style="margin: 0; font-weight: 900;">Last &nbsp<i class="oi oi-chevron-right"></i></p>
+            </button>
+        </div>
+}
 
 @code {
-    
+    bool isFirstDisabled = true;
+    bool isLastDisabled = false;
+
+    protected override void OnInitialized()
+    {
+        //BookService.InitializePages();
+        BookService.GetFeaturedBooks();
+
+        if (BookService.PageCount == 1)
+        {
+            isFirstDisabled = true;
+            isLastDisabled = true;
+        }
+        BookService.OnChange += StateHasChanged;
+    }
+
+    private async Task SelectPage(int page)
+    {
+        BookService.Page = page;
+        await BookService.GetFeaturedBooks();
+
+        if (page == 1)
+        {
+            isFirstDisabled = true;
+            isLastDisabled = false;
+        }
+        else if (page == BookService.PageCount)
+        {
+            isFirstDisabled = false;
+            isLastDisabled = true;
+        }
+        else
+        {
+            isFirstDisabled = false;
+            isLastDisabled = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        BookService.OnChange -= StateHasChanged;
+    }
 }

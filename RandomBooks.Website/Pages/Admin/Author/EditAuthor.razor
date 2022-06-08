@@ -113,13 +113,13 @@ else
     {
         if (author.New)
         {
-            var result = await AuthorService.AddAuthor(author, image);
+            var result = await AuthorService.AddAuthor(author, image == "user.svg" ? string.Empty : image);
             NavigationManager.NavigateTo($"admin/author/{result.Id}");
         }
         else
         {
             author.New = false;
-            author = await AuthorService.UpdateAuthor(author, image);
+            author = await AuthorService.UpdateAuthor(author, image == "user.svg" ? string.Empty : image);
             NavigationManager.NavigateTo($"admin/authors");
         }
     }

@@ -56,7 +56,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasIndex("CustomerDetailsId");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", (string)null);
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Author", b =>
@@ -85,7 +85,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasIndex("ImageId");
 
-                    b.ToTable("Authors");
+                    b.ToTable("Authors", (string)null);
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Blob", b =>
@@ -116,7 +116,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Blobs");
+                    b.ToTable("Blobs", (string)null);
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Book", b =>
@@ -168,7 +168,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasIndex("PublisherId");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.BookAuthors", b =>
@@ -186,7 +186,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("BookAuthors");
+                    b.ToTable("BookAuthors", (string)null);
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.BookLanguages", b =>
@@ -204,7 +204,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasIndex("LanguageId");
 
-                    b.ToTable("BookLanguages");
+                    b.ToTable("BookLanguages", (string)null);
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.BookType", b =>
@@ -221,7 +221,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BookTypes");
+                    b.ToTable("BookTypes", (string)null);
 
                     b.HasData(
                         new
@@ -268,7 +268,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasIndex("BookTypeId");
 
-                    b.ToTable("BookVariants");
+                    b.ToTable("BookVariants", (string)null);
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Category", b =>
@@ -288,7 +288,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
 
                     b.HasData(
                         new
@@ -355,7 +355,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasIndex("CustomerDetailsId");
 
-                    b.ToTable("CustomerCards");
+                    b.ToTable("CustomerCards", (string)null);
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.CustomerDetails", b =>
@@ -395,7 +395,7 @@ namespace RandomBooks.Data.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("CustomerDetails");
+                    b.ToTable("CustomerDetails", (string)null);
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.EmployeeDetails", b =>
@@ -438,7 +438,7 @@ namespace RandomBooks.Data.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("EmployeeDetails");
+                    b.ToTable("EmployeeDetails", (string)null);
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Language", b =>
@@ -462,7 +462,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Languages");
+                    b.ToTable("Languages", (string)null);
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Publisher", b =>
@@ -482,7 +482,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Publishers");
+                    b.ToTable("Publishers", (string)null);
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Status", b =>
@@ -499,7 +499,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Statuses");
+                    b.ToTable("Statuses", (string)null);
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.User", b =>
@@ -527,7 +527,7 @@ namespace RandomBooks.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("RandomBooks.Shared.DatabaseModels.Address", b =>

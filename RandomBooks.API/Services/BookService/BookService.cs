@@ -92,23 +92,65 @@ public class BookService : IBookService
         return new ServiceResponse<Book> { Data = book };
     }
 
-    public async Task<ServiceResponse<List<Book>>> GetBooks()
+    public async Task<ServiceResponse<BookListResult>> GetBooks(int page)
     {
+        var results = 5;
         var books = await _ctx.Books
             .Where(x => !x.Deleted)
             .Include(x => x.Variants.Where(v => !v.Deleted))
             .Include(x => x.Authors.Where(a => !a.Deleted))
-            .Include(x => x.Languages.Where(l => !l.Deleted))
+            .ThenInclude(x=>x.Author)
             .Include(x => x.Image)
             .ToListAsync();
+        var pageCount = Math.Ceiling(books.Count / (double)results);
         if (books == null || books.Count == 0)
-            return new ServiceResponse<List<Book>>
+            return new ServiceResponse<BookListResult>
             {
                 Success = false,
                 Message = "No books found"
             };
 
-        return new ServiceResponse<List<Book>> { Data = books };
+        return new ServiceResponse<BookListResult> 
+        {
+            Data = new BookListResult
+            {
+                Books = books.Skip((page - 1) * results).Take(results).ToList(),
+                Page = page,
+                Pages = (int)pageCount
+            }
+        };
+    }
+
+    public async Task<ServiceResponse<BookListResult>> GetBooksByCategory(string category, int page)
+    {
+        category = category.Replace('-', ' ');
+
+        var results = 5;
+        var books = await _ctx.Books
+            .Where(x => !x.Deleted && x.Category.Name.ToLower().Equals(category))
+            .Include(x => x.Category)
+            .Include(x => x.Variants.Where(v => !v.Deleted))
+            .Include(x => x.Authors.Where(a => !a.Deleted))
+            .ThenInclude(x => x.Author)
+            .Include(x => x.Image)
+            .ToListAsync();
+        var pageCount = Math.Ceiling(books.Count / (double)results);
+        if (books == null || books.Count == 0)
+            return new ServiceResponse<BookListResult>
+            {
+                Success = false,
+                Message = "No books found"
+            };
+
+        return new ServiceResponse<BookListResult>
+        {
+            Data = new BookListResult
+            {
+                Books = books.Skip((page - 1) * results).Take(results).ToList(),
+                Page = page,
+                Pages = (int)pageCount
+            }
+        };
     }
 
     public async Task<ServiceResponse<BookListResult>> GetFeaturedBooks(int page)

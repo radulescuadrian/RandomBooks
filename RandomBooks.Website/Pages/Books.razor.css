@@ -1,0 +1,34 @@
+﻿img {
+    width: 100px;
+    height: 159px;
+    border-radius: 6px;
+    transition: transform .2s;
+}
+
+    img:hover {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+.big-text {
+    display: -webkit-box;
+    max-width: 100%;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.list {
+    width: 50%;
+}
+
+.box {
+    padding: 15px;
+    border: 1px solid;
+    border-radius: 15px;
+}
+
+@media (max-width: 1023.98px) {
+    .list {
+        width: 70%;
+    }
+}

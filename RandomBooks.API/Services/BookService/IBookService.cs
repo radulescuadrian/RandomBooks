@@ -6,7 +6,8 @@
         Task<ServiceResponse<BookListResult>> GetAdminBooks(int page);
         Task<ServiceResponse<List<Author>>> GetAuthors();
         Task<ServiceResponse<Book>> GetBook(int bookId);
-        Task<ServiceResponse<List<Book>>> GetBooks();
+        Task<ServiceResponse<BookListResult>> GetBooks(int page);
+        Task<ServiceResponse<BookListResult>> GetBooksByCategory(string category, int page);
         Task<ServiceResponse<List<BookType>>> GetBookTypes();
         Task<ServiceResponse<BookListResult>> GetFeaturedBooks(int page);
         Task<ServiceResponse<List<Language>>> GetLanguages();

@@ -50,6 +50,7 @@ public class BookService : IBookService
 
     public void InitializePages()
     {
+        Books.Clear();
         Message = "Loading books...";
         Page = 1;
         PageCount = 0;
@@ -100,6 +101,26 @@ public class BookService : IBookService
 
         if (Books.Count == 0)
             Message = "No featured books found";
+
+        OnChange?.Invoke();
+    }
+
+    public async Task GetBooks(string category = null)
+    {
+        ServiceResponse<BookListResult> response;
+        if(category == null)
+            response = await _http.GetFromJsonAsync<ServiceResponse<BookListResult>>($"https://localhost:7163/api/books/{Page}");
+        else response = await _http.GetFromJsonAsync<ServiceResponse<BookListResult>>($"https://localhost:7163/api/books/{category}/{Page}");
+
+        if (response != null && response.Data != null)
+        {
+            Books = response.Data.Books;
+            Page = response.Data.Page;
+            PageCount = response.Data.Pages;
+        }
+
+        if (Books.Count == 0)
+            Message = "No books found";
 
         OnChange?.Invoke();
     }

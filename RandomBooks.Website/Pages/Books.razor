@@ -1,14 +1,177 @@
 ﻿@page "/books"
 @page "/books/{categoryName}"
+@inject IBookService BookService
+@implements IDisposable
 
-<h3>@CategoryName</h3>
+@if(BookService.Books == null || BookService.Books.Count == 0)
+{
+    <span>@BookService.Message</span>
+}
+else
+{
+    <ul class="center mx-auto list">
+        @foreach (var book in BookService.Books)
+        {
+            <li class="media box my-3">
+                <div class="me-5">
+                    <a href="">
+                        <img src="@(book.Image != null ? book.Image.Data : "book.svg")">
+                    </a>
+                </div>
+                <div class="media-body position-relative" style="height: 159px;">
+                    <a href="">
+                        <h4 class="mb-5">@book.Title</h4>
+                    </a>
+                    <p class="big-text">@book.Description</p>
+                    <div class="d-table position-absolute bottom-0">
+                        <div class="d-table-cell align-bottom">
+                            <div class="row">
+                                <p class="mb-0 pe-0" style="width: 84px;"> Written by: </p>
+                                <span class="col text-danger">@GetAuthors(book)</span>
+                            </div>
+                            <h5 class="price mb-0">
+                                @GetPrice(book)
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+
+    <div class="mx-auto mb-5" style="text-align: center; @GetSpace()">
+        <hr />
+        <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isFirstDisabled
+                    @onclick="(() => SelectPage(1))">
+            <p style="margin: 0; font-weight: 900;"><i class="oi oi-chevron-left"></i>&nbsp First</p>
+        </button>
+
+        @if (BookService.PageCount <= 5)
+        {
+            for (var i = 1; i <= BookService.PageCount; i++)
+            {
+                var page = i;
+                <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
+            }
+        }
+        else if (BookService.Page < 4)
+        {
+            for (var i = 1; i <= 4; i++)
+            {
+                var page = i;
+                <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
+            }
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+        }
+        else if (BookService.Page > BookService.PageCount - 3)
+        {
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+            for (var i = BookService.PageCount - 3; i <= BookService.PageCount; i++)
+            {
+                var page = i;
+                <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
+            }
+        }
+        else
+        {
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+            for (var i = BookService.Page - 2; i <= BookService.Page + 2; i++)
+            {
+                var page = i;
+                <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
+            }
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+        }
+
+        <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isLastDisabled
+                @onclick="(() => SelectPage(BookService.PageCount))">
+            <p style="margin: 0; font-weight: 900;">Last &nbsp<i class="oi oi-chevron-right"></i></p>
+        </button>
+    </div>
+}
 
 @code {
     [Parameter]
     public string? CategoryName { get; set; } = null;
 
+    bool isFirstDisabled = true;
+    bool isLastDisabled = false;
+
     protected override async Task OnParametersSetAsync()
     {
-        //await ProductService.GetProducts(CategoryUrl);
+        BookService.InitializePages();
+        await BookService.GetBooks(CategoryName);
+
+        if (BookService.PageCount == 1)
+        {
+            isFirstDisabled = true;
+            isLastDisabled = true;
+        }
+        BookService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        BookService.OnChange -= StateHasChanged;
+    }
+
+    private async Task SelectPage(int page)
+    {
+        BookService.Page = page;
+        await BookService.GetBooks(CategoryName);
+
+        if (page == 1)
+        {
+            isFirstDisabled = true;
+            isLastDisabled = false;
+        }
+        else if (page == BookService.PageCount)
+        {
+            isFirstDisabled = false;
+            isLastDisabled = true;
+        }
+        else
+        {
+            isFirstDisabled = false;
+            isLastDisabled = false;
+        }
+    }
+
+    private string GetSpace()
+    {
+        if (BookService.Books.Count() < 5)
+            return $"margin-top: {64 + 232 * (5 - BookService.Books.Count())}px;";
+        return string.Empty;
+    }
+
+    private string GetPrice(Book book)
+    {
+        var variants = book.Variants;
+        if (variants.Count == 0)
+            return string.Empty;
+        else if (variants.Count == 1)
+            return $"${variants[0].Price}";
+
+        decimal minPrice = variants.Min(v => v.Price);
+        return $"Starting at ${minPrice}";
+    }
+
+    private string GetAuthors(Book book)
+    {
+        var text = "";
+        foreach (var author in book.Authors)
+        {
+            text += $"{author.Author?.Name}, ";
+        }
+
+        return text.Remove(text.Length - 2, 2);
     }
 }

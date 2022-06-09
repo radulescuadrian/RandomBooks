@@ -42,71 +42,71 @@ else
     </div>
 
     <div class="mx-auto" style="text-align: center;">
-            <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isFirstDisabled
-                        @onclick="(() => SelectPage(1))">
-                <p style="margin: 0; font-weight: 900;"><i class="oi oi-chevron-left"></i>&nbsp First</p>
-            </button>
+        <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isFirstDisabled
+                    @onclick="(() => SelectPage(1))">
+            <p style="margin: 0; font-weight: 900;"><i class="oi oi-chevron-left"></i>&nbsp First</p>
+        </button>
 
-            @if (BookService.PageCount <= 5)
+        @if (BookService.PageCount <= 5)
+        {
+            for (var i = 1; i <= BookService.PageCount; i++)
             {
-                for (var i = 1; i <= BookService.PageCount; i++)
-                {
-                    var page = i;
-                    <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
-                            style="margin: 2px;"
-                            @onclick="(() => SelectPage(page))">@i</button>
-                }
+                var page = i;
+                <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
             }
-            else if (BookService.Page < 4)
+        }
+        else if (BookService.Page < 4)
+        {
+            for (var i = 1; i <= 4; i++)
             {
-                for (var i = 1; i <= 4; i++)
-                {
-                    var page = i;
-                    <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
-                            style="margin: 2px;"
-                            @onclick="(() => SelectPage(page))">@i</button>
-                }
-                <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+                var page = i;
+                <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
             }
-            else if (BookService.Page > BookService.PageCount - 3)
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+        }
+        else if (BookService.Page > BookService.PageCount - 3)
+        {
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+            for (var i = BookService.PageCount - 3; i <= BookService.PageCount; i++)
             {
-                <p class="btn btn-outline-black" style="margin: 2px;">...</p>
-                for (var i = BookService.PageCount - 3; i <= BookService.PageCount; i++)
-                {
-                    var page = i;
-                    <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
-                            style="margin: 2px;"
-                            @onclick="(() => SelectPage(page))">@i</button>
-                }
+                var page = i;
+                <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
             }
-            else
+        }
+        else
+        {
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+            for (var i = BookService.Page - 2; i <= BookService.Page + 2; i++)
             {
-                <p class="btn btn-outline-black" style="margin: 2px;">...</p>
-                for (var i = BookService.Page - 2; i <= BookService.Page + 2; i++)
-                {
-                    var page = i;
-                    <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
-                            style="margin: 2px;"
-                            @onclick="(() => SelectPage(page))">@i</button>
-                }
-                <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+                var page = i;
+                <button class="btn @(i == BookService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
             }
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+        }
 
-            <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isLastDisabled
-                    @onclick="(() => SelectPage(BookService.PageCount))">
-                <p style="margin: 0; font-weight: 900;">Last &nbsp<i class="oi oi-chevron-right"></i></p>
-            </button>
-        </div>
+        <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isLastDisabled
+                @onclick="(() => SelectPage(BookService.PageCount))">
+            <p style="margin: 0; font-weight: 900;">Last &nbsp<i class="oi oi-chevron-right"></i></p>
+        </button>
+    </div>
 }
 
 @code {
     bool isFirstDisabled = true;
     bool isLastDisabled = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        //BookService.InitializePages();
-        BookService.GetFeaturedBooks();
+        BookService.InitializePages();
+        await BookService.GetFeaturedBooks();
 
         if (BookService.PageCount == 1)
         {

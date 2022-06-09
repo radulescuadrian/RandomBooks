@@ -18,6 +18,7 @@
         Task<Book> AddBook(Book book, string image);
         Task GetAdminBooks(bool all = false);
         Task<ServiceResponse<Book>> GetBook(int bookId);
+        Task GetBooks(string category = null);
         Task GetDropdowns();
         Task GetFeaturedBooks();
         void InitializePages();

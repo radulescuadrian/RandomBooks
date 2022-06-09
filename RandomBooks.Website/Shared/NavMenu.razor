@@ -11,9 +11,9 @@
         </div>
 
         <div class="nav-item dropdown ps-3">
-            <a class="dropdown-toggle" href="" style="padding: 8px 16px;" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                     Books
-                </a>
+            <a class="dropdown-toggle fw-bold" href="" style="padding: 8px 16px;" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                 Books
+            </a>
             
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
                 @foreach (var category in CategoryService.Categories)
@@ -23,13 +23,12 @@
             </div>
         </div>
 
-        <div class="nav-item px-1">
-            <NavLink class="nav-link text-white" href="contact">
-                Contact
-            </NavLink>
+        <div class="nav-item px-1 ps-3 me-2 search" style="padding-top: 13px; flex: 1;">
+            <input class="form-control my-auto"/>
+
         </div>
 
-        <div class="nav-item my-auto ml-auto mr-2">
+        <div class="nav-item my-auto mr-2">
             <AuthenticateButton />
         </div>
     </nav>

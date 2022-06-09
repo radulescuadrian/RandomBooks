@@ -45,10 +45,17 @@ public class BookController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet]
-    public async Task<ActionResult<ServiceResponse<List<Book>>>> GetBooks()
+    [HttpGet("~/api/Books/{page}")]
+    public async Task<ActionResult<ServiceResponse<BookListResult>>> GetBooks(int page)
     {
-        var result = await _bookService.GetBooks();
+        var result = await _bookService.GetBooks(page);
+        return Ok(result);
+    }
+
+    [HttpGet("~/api/Books/{category}/{page}")]
+    public async Task<ActionResult<ServiceResponse<BookListResult>>> GetBooksByCategory(string category, int page)
+    {
+        var result = await _bookService.GetBooksByCategory(category, page);
         return Ok(result);
     }
 

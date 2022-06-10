@@ -21,7 +21,10 @@ else
             <div>
                 <div class="row d-flex" style="width: 100%; margin: auto; margin-top: 7px;">
                     <div class="col">
-                        <h1 class="mb-0" style="padding-top: 3px;"><strong>Order #@order.Id</strong></h1>
+                        <a class="d-flex">
+                            <h1 class="mb-0" style="padding-top: 3px;">Order</h1>
+                            <h1 class="mb-0 ms-5 fw-bold text-secondary" style="padding-top: 3px;">#@order.Id</h1>
+                        </a>
                     </div>
                     <div class="col">
                         <h3 style="float: right; margin-top: 7px;"><strong>@order.DatePlaced.ToString("dd MMMM yyyy")</strong></h3>

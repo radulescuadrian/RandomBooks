@@ -106,6 +106,7 @@ public class OrderService : IOrderService
                 Total = order.Total,
                 Books = books,
                 ItemsText = itemText,
+                ProductsCount = order.Books.Count,
                 Address = new OrderAddress
                 {
                     Country = order.Address.Country,

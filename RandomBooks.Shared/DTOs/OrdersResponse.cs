@@ -17,6 +17,7 @@ public class OrdersResponse
     public string Payment { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public string ItemsText { get; set; } = string.Empty;
+    public int ProductsCount { get; set; } = 1;
 }
 
 public class OrderAddress

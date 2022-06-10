@@ -1,0 +1,61 @@
+﻿.container {
+    display: flex;
+    padding: 6px;
+}
+
+img {
+    width: 126px;
+    height: 200px;
+    border-radius: 6px;
+    object-fit: contain;
+}
+
+.cart-details {
+    flex-grow: 1;
+    padding: 6px;
+}
+
+    .btn-delete:hover {
+        text-decoration: underline;
+    }
+
+.input-quantity {
+    width: 70px;
+}
+
+.total-container {
+    background-color: black;
+    color: white;
+    height: 40px;
+    border-radius: 15px;
+    width: 210px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.grid-container {
+    display: flex;
+    flex-wrap: wrap;
+    overflow: hidden;
+    padding: 10px;
+}
+
+    .grid-container > * {
+        flex: none;
+        margin: 6px;
+    }
+
+.grid-item {
+    border-radius: 10px;
+    text-align: center;
+}
+
+.hide {
+    display: none;
+}
+
+.showDetails:hover button {
+    display: block;
+}

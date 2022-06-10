@@ -1,14 +1,18 @@
 ﻿@inject ILocalStorageService LocalStorage
+@inject ICartService CartService
 @inject IAuthService AuthService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 
 <AuthorizeView Roles="Admin">
     <Authorized>
-        <button class="btn bg-white text-black" @onclick="BackToDashboard">Admin Dashboard</button>
+        <button class="btn bg-white text-black me-3" @onclick="BackToDashboard">Admin Dashboard</button>
         <button class="btn btn-danger" @onclick="Logout">Logout</button>
     </Authorized>
     <NotAuthorized>
+
+        <CartButton />
+
         <AuthorizeView Roles="Customer" Context="Customers">
             <Authorized>
                 <div class="dropdown">
@@ -63,6 +67,7 @@
     private async Task Logout()
     {
         await LocalStorage.RemoveItemAsync("token");
+        await CartService.GetNumberOfItems();
         await AuthenticationStateProvider.GetAuthenticationStateAsync();
         NavigationManager.NavigateTo("");
     }

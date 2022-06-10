@@ -3,6 +3,7 @@
 @using RandomBooks.Shared.Authentication
 @using Microsoft.AspNetCore.WebUtilities
 @inject IAuthService AuthService
+@inject ICartService CartService
 @inject ILocalStorageService LocalStorage
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -66,10 +67,14 @@
                 {
                     await LocalStorage.RemoveItemAsync("token");
                     await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
                     errorMessage = "Please use a different account"; 
                     return;
                 }
             }
+
+            await CartService.StoreItems(true);
+            await CartService.GetNumberOfItems();
 
             NavigationManager.NavigateTo(returnUrl);
         }

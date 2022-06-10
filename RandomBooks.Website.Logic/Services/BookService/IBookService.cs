@@ -12,6 +12,7 @@
         int Page { get; set; }
         int PageCount { get; set; }
         List<Book> Books { get; set; }
+        string LastSearchText { get; set; }
 
         event Action OnChange;
 
@@ -19,9 +20,11 @@
         Task GetAdminBooks(bool all = false);
         Task<ServiceResponse<Book>> GetBook(int bookId);
         Task GetBooks(string category = null);
+        Task<List<string>> GetBookSearchSuggestions(string searchText);
         Task GetDropdowns();
         Task GetFeaturedBooks();
         void InitializePages();
+        Task SearchBooks(string searchText);
         Task<Book> UpdateBook(Book book, string image);
     }
 }

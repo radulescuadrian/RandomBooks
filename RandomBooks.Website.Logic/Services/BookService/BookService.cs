@@ -29,6 +29,7 @@ public class BookService : IBookService
     public string Message { get; set; } = "Loading books...";
     public int Page { get; set; } = 1;
     public int PageCount { get; set; } = 0;
+    public string LastSearchText { get; set; } = string.Empty;
 
     public BookService(HttpClient http, IAuthorService authorService, ICategoryService categoryService, IPublisherService publisherService, ILanguageService languageService)
     {
@@ -50,7 +51,8 @@ public class BookService : IBookService
 
     public void InitializePages()
     {
-        Books.Clear();
+        if (Books != null)
+            Books.Clear();
         Message = "Loading books...";
         Page = 1;
         PageCount = 0;
@@ -149,5 +151,29 @@ public class BookService : IBookService
         var response = await _http.PutAsJsonAsync("https://localhost:7163/api/book", edit);
         return (await response.Content
             .ReadFromJsonAsync<ServiceResponse<Book>>()).Data;
+    }
+
+    public async Task SearchBooks(string searchText)
+    {
+        LastSearchText = searchText;
+
+        var result = await _http.GetFromJsonAsync<ServiceResponse<BookListResult>>($"https://localhost:7163/api/book/search/{searchText}/{Page}");
+        if (result != null && result.Data != null)
+        {
+            Books = result.Data.Books;
+            Page = result.Data.Page;
+            PageCount = result.Data.Pages;
+        }
+
+        if (Books.Count == 0)
+            Message = "No books found.";
+
+        OnChange?.Invoke();
+    }
+
+    public async Task<List<string>> GetBookSearchSuggestions(string searchText)
+    {
+        var result = await _http.GetFromJsonAsync<ServiceResponse<List<string>>>($"https://localhost:7163/api/book/searchsuggestions/{searchText}");
+        return result.Data;
     }
 }

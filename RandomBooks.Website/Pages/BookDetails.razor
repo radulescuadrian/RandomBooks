@@ -1,0 +1,145 @@
+﻿@page "/book/{id:int}"
+@inject IBookService BookService
+@inject ICartService CartService
+
+@if (book is null)
+{
+    <span>@message</span>
+}
+else
+{
+    <div class="center mx-auto list">
+        <div class="media box my-3">
+            <div class="me-5">
+                <a href="/book/@book.Id">
+                    <img src="@(book.Image != null ? book.Image.Data : "book.svg")">
+                </a>
+            </div>
+            <div class="media-body position-relative">
+                <a href="/book/@book.Id">
+                    <h4 class="mb-5">@book.Title</h4>
+                </a>
+                <p class="big-text">@book.Description</p>
+                
+                <div class="row">
+                    <p class="mb-0 pe-0" style="width: 84px;"> Written by: </p>
+                    <span class="col text-danger">@GetAuthors(book)</span>
+                </div>
+                
+                <div class="row mb-2">
+                    <p class="mb-0 pe-0 my-auto" style="width: 100px;">Available in: </p>
+                    @if (book.Variants != null && book.Variants.Count > 1)
+                    {
+                        <select class="col form-select me-4" @bind="currentTypeId">
+                            @foreach (var variant in book.Variants)
+                            {
+                                <option value="@variant.BookTypeId">@variant.BookType.Name</option>
+                            }
+                        </select>
+                    }
+                </div>
+
+                <div class="row" style="margin-bottom: 55px !important;">
+                    @if (GetSelectedVariant() != null)
+                    {
+                        if (GetSelectedVariant().Stock > 10)
+                        {
+                            <p class="my-auto pe-0" style="flex: 0;">Availability: </p>
+                            <p class="text-success col my-auto fw-bold">In Stock</p>
+                        }
+                        else if (GetSelectedVariant().Stock == 0)
+                        {
+                            <p class="my-auto pe-0" style="flex: 0;">Availability: </p>
+                            <p class="text-danger col my-auto fw-bold">Out of Stock</p>
+                        }
+                        else
+                        {
+                            <p class="my-auto pe-0" style="flex: 0;">Availability: </p>
+                            <p class="text-warning col my-auto fw-bold">Only @GetSelectedVariant().Stock left</p>
+                        }
+                    }
+                </div>
+
+                
+                <div class="d-table position-absolute bottom-0" style="width: 100%">
+                    <div class="d-table-cell align-bottom">
+                        <div class="row">
+                            <h3 class="my-auto" style="flex: 0;">Price:</h3>
+                            @if (GetSelectedVariant() != null)
+                            {
+                                <div class="my-auto" style="flex: 1;">
+                                    @if(GetSelectedVariant().Price > GetSelectedVariant().Offer && GetSelectedVariant().HasOffer)
+                                    {
+                                        <h6 class="text-muted original-price mb-0">
+                                            $@GetSelectedVariant().Price
+                                        </h6>
+                                    }
+
+                                    <h4 class="col price mb-0">
+                                        $@(GetSelectedVariant().HasOffer ? @GetSelectedVariant().Offer : @GetSelectedVariant().Price)
+                                    </h4>
+                                </div>
+                            }
+                            <button class="btn bg-black text-white ms-auto mt-auto" style="width: 131px; margin-right: 12px; height: 38px;" 
+                                    @onclick="AddToCart" disabled="@(@GetSelectedVariant().Stock == 0 ? true : false)">
+                                <i class="oi oi-cart"></i> &nbsp;Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private Book? book = null;
+    private string message = string.Empty;
+    private int currentTypeId = 1;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        message = "Loading book...";
+
+        var result = await BookService.GetBook(Id);
+        if (!result.Success)
+            message = result.Message;
+        else
+        {
+            book = result.Data;
+            if (book.Variants.Count > 0)
+                currentTypeId = book.Variants[0].BookTypeId;
+        }
+    }
+
+    private BookVariants GetSelectedVariant()
+    {
+        return book.Variants.FirstOrDefault(v => v.BookTypeId == currentTypeId);
+    }
+
+    private async Task AddToCart()
+    {
+        var bookVariant = GetSelectedVariant();
+        var cartItem = new CartItem
+        {
+            BookId = bookVariant.BookId,
+            BookTypeId = bookVariant.BookTypeId
+        };
+
+        await CartService.AddToCart(cartItem);
+    }
+
+    private string GetAuthors(Book book)
+    {
+        var text = "";
+        foreach (var author in book.Authors)
+        {
+            text += $"{author.Author?.Name}, ";
+        }
+
+        return text.Remove(text.Length - 2, 2);
+    }
+}

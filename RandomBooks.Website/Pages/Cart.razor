@@ -1,0 +1,407 @@
+﻿@page "/cart"
+@inject ICartService CartService
+@inject IAuthService AuthService
+@inject ICustomerService CustomerService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Shopping Cart</PageTitle>
+
+@if(cart == null || cart.Count == 0)
+{
+    if (message != "Loading cart...")
+    {
+        <center class="mt-5">
+            <img src="cart.svg" style="width: 300px;">
+            <h1 class="mt-5">Sorry, your cart is empty.</h1>
+        </center>
+    }
+    else
+    {
+        <h3>Shopping Cart</h3>
+        <span>@message</span>
+    }
+}
+else
+{
+    <center class="mb-5"><h3>Shopping Cart</h3></center>
+    <div class="mb-5" style="width: 50%; margin: 0 auto;">
+        @foreach (var item in cart)
+        {
+            <div class="container ms-auto">
+                <button class="text-danger me-5" style="font-size: 20px;"
+                        @onclick="@(() => RemoveBook(item.BookId, item.BookTypeId))">
+                    <i class="oi oi-x"></i>
+                </button>
+                <img src="@item.Image" class="me-3" style="background-color: lightgray;"/>
+                <div class="cart-details">
+                    <div class="d-flex mb-2">
+                        <h5 class="my-auto"><a href="/book/@item.BookId">@item.Title</a></h5>
+                        <p class="my-auto">&nbsp; - &nbsp;</p>
+                        <p class="my-auto text-danger">@item.Category</p>
+                    </div>
+                    <span class="text-info fw-bold">@item.BookType</span><br/>
+
+                    <div class="d-flex">
+                        <h5 class="my-auto">Quantity:</h5>
+                        <input class="form-control input-quantity ms-3" type="number" 
+                           min="1" max="@item.Stock" value="@item.Quantity" @onchange="((ChangeEventArgs e) => UpdateQuantity(e, item))"/> 
+                    </div>
+
+                    <div class="d-flex">
+                        <h5 class="me-3" style="margin-top: 5px;">Price:</h5>
+                        <div class="price my-auto fw-bold">$ @(item.Price * item.Quantity)</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="total-container mb-5">
+        <div class="fw-bold d-flex">
+            Total (@cart.Count): <p class="ms-3 mb-0 price">$ @cart.Sum(product => product.Price * product.Quantity)</p>
+        </div>
+    </div>
+
+    @if (isAuthenticated)
+    {
+        <div style="width: 50%; margin: 0 auto;">
+            <div class="container ms-auto">
+                <div class="cart-details">
+                    <h5>Delivery Address</h5>
+                    @if (newAddress)
+                    {
+                        <center class="mb-5">
+                            <button class="btn bg-black text-white fw-bold"
+                                    @onclick="ToggleAddress">
+                                Select an exisiting address ?
+                            </button>
+                        </center>
+
+                        <EditForm Model="address" OnValidSubmit="@(() => setAddress = true)">
+                            <DataAnnotationsValidator></DataAnnotationsValidator>
+                            <div class="mb-3">
+                                <label for="street">Street</label>
+                                <InputText id="street" class="form-control" @bind-Value="address.Country" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="city">City</label>
+                                <InputText id="city" class="form-control" @bind-Value="address.City" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="state">State</label>
+                                <InputText id="state" class="form-control" @bind-Value="address.Street" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="zip">ZIP</label>
+                                <InputText id="zip" class="form-control" @bind-Value="address.Zip" />
+                            </div>
+                            <div class="d-flex mb-5">
+                                <button type="submit" class="btn bg-black text-white fw-bold">Save</button>
+                                @if (setAddress)
+                                {
+                                    <p class="ms-auto my-auto pe-1 text-success fw-bold">Address set</p>
+                                }
+                            </div>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        <div class="grid-container">
+                            @foreach (var address in CustomerService.User.Addresses)
+                            {
+                                <div class="grid-item p-1 showDetails">
+                                    <div class="row mx-auto"
+                                         style="height: 29px;">
+                                        <button class="btn bg-black bg-black text-white fw-bold hide"
+                                                style="height: 25px; padding: 0;"
+                                                @onclick="(() => SelectAddress(address))">
+                                            Select
+                                        </button>
+                                    </div>
+                                    <div class="grid-item p-1 showDetails" style="@(address.Selected ? "border: 4px solid rgba(0, 0, 0, 0.8);" : "border: 1px solid rgba(0, 0, 0, 0.8); margin-top: 3px;")">
+                                        <div class="row mx-auto">
+                                            <div class="col-6 pe-0">
+                                                <p class="fw-bold text-start">Country</p>
+                                            </div>
+                                            <div class="col-6 ps-1">
+                                                <p class="text-start" style="width: 80px;">@address.Country</p>
+                                            </div>                   
+                                        </div>
+                                        <div class="row mx-auto">
+                                            <div class="col-6 pe-0">
+                                                <p class="fw-bold text-start">City</p>
+                                            </div>
+                                            <div class="col-6 ps-1">
+                                                <p class="text-start">@address.City</p>
+                                            </div> 
+                                        </div>
+                                        <div class="row mx-auto">
+                                            <div class="col-6 pe-0">
+                                                <p class="fw-bold text-start">Street</p>
+                                            </div>
+                                            <div class="col-6 ps-1">
+                                                <p class="text-start">@address.Street</p>
+                                            </div>  
+                                        </div>
+                                        <div class="row mx-auto">
+                                            <div class="col-6 pe-0">
+                                                <p class="fw-bold text-start">Zip</p>
+                                            </div>
+                                            <div class="col-6 ps-1">
+                                                <p class="text-start">@address.Zip</p>
+                                            </div> 
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <center>
+                            <button class="btn bg-black text-white fw-bold mb-5"
+                                    @onclick="ToggleAddress">
+                                Another address ?
+                            </button>
+                        </center>
+                    }
+                    <hr />
+
+                    <h5>Payment Method</h5>
+                    @if (newCard)
+                    {
+                        <center class="mb-5">
+                            <button class="btn bg-black text-white fw-bold"
+                                    @onclick="ToggleCard">
+                                Select an exisiting card ?
+                            </button>
+                        </center>
+
+                        <EditForm Model="card" OnValidSubmit="@(() => setCard = true)">
+                            <DataAnnotationsValidator></DataAnnotationsValidator>
+                            <div class="mb-3">
+                                <label for="number">Number</label>
+                                <InputText id="number" class="form-control" @bind-Value="card.Number" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="city">Name</label>
+                                <InputText id="city" class="form-control" @bind-Value="card.Name" />
+                            </div>
+                            <div class="d-flex">
+                                <div class="mb-3 me-5">
+                                    <label for="month">Month</label>
+                                    <input type="number" min="1" max="12" id="month" class="form-control" @bind-value="card.ExpirationMonth" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="year">Year</label>
+                                    <input type="number" min="2022" max="2050" id="year" class="form-control" @bind-value="card.ExpirationYear" />
+                                </div>
+                                <button class="btn bg-black text-white fw-bold ms-5" style="height: 38px; margin-top: 20px;">Save</button>
+                                 @if (setCard)
+                                 {
+                                     <p class="ms-auto my-auto pe-1 text-success fw-bold" style="padding-top: 20px;">Card set</p>
+                                 }
+                            </div>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        if (payOnDelivery)
+                        {
+                            <center class="mb-5">
+                                <button class="btn bg-black text-white fw-bold mb-5"
+                                        @onclick="BackToCards">
+                                    Select another method
+                                </button>
+
+                                <h3 class="text-success">You will pay on delivery.</h3>
+                            </center>
+                        }
+                        else
+                        {
+                            <div class="mb-5">
+                                @foreach (var card in CustomerService.User.Cards)
+                                {
+                                    <div class="d-flex grid-item p-1 showDetails">
+                                        <div class="grid-item p-1 showDetails me-5" style="@(card.Selected ? "border: 4px solid rgba(0, 0, 0, 0.8);" : "border: 1px solid rgba(0, 0, 0, 0.8); margin-left: 3px;")">
+                                            <div class="d-flex">
+                                                <div class="me-3">
+                                                    <p class="fw-bold text-start mb-0">Number</p>
+                                                </div>
+                                                <div class="ps-1">
+                                                    <p class="text-start mb-0">**** **** **** @(card.Number.Substring(card.Number.Length - 4))</p>
+                                                </div>                   
+                                            </div>
+                                        </div>
+                                        <div class="my-auto d-flex align-items-center"
+                                             style="height: 29px;">
+                                            <button class="btn bg-black bg-black text-white fw-bold hide"
+                                                    style="height: 25px; padding: 0; width: 70px;"
+                                                    @onclick="(() => SelectCard(card))">
+                                                Select
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <center>
+                                <button class="btn bg-black text-white fw-bold mb-2"
+                                        @onclick="ToggleCard">
+                                    Another card ?
+                                </button>
+                            </center>
+                            <center>
+                                <button class="btn bg-black text-white fw-bold mb-5"
+                                        @onclick="PayOnDelivery">
+                                    Pay on delivery ?
+                                </button>
+                            </center>
+                        }
+                    }
+                    <hr />
+
+                    <h5>Notes</h5>
+                    <textarea class="form-control" @bind="notes"></textarea>
+
+                    <center class="mb-5">
+                        <button class="btn bg-black text-white mt-5" 
+                                style="border-radius: 20px;"
+                                @onclick="Checkout" disabled="@Verify()">
+                            <h1 class="mb-0" style="padding: 0 10px;">CHECKOUT</h1>
+                        </button>
+                    </center>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    List<CartProductResponse> cart = null;
+    string message = "Loading cart...";
+    bool isAuthenticated = false;
+
+    string? notes;
+
+    Address? address = null;
+    bool newAddress = false;
+    bool setAddress = false;
+
+    CustomerCard? card = null;
+    bool newCard = false;
+    bool setCard = false;
+    bool payOnDelivery = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsUserAuthenticated();
+        await CustomerService.GetProfile();
+        await LoadCart();
+    }
+
+    private async Task RemoveBook(int bookId, int bookTypeId)
+    {
+        await CartService.RemoveBook(bookId, bookTypeId);
+        await LoadCart();
+    }
+
+    private async Task LoadCart()
+    {
+        await CartService.GetNumberOfItems();
+        cart = await CartService.GetProducts();
+        if (cart == null || cart.Count == 0)
+            message = "Your cart is empty.";
+    }
+
+    private async Task UpdateQuantity(ChangeEventArgs e, CartProductResponse book)
+    {
+        book.Quantity = int.Parse(e.Value.ToString());
+        if (book.Quantity < 1)
+            book.Quantity = 1;
+        if (book.Quantity > book.Stock)
+            book.Quantity = book.Stock;
+
+        await CartService.UpdateQuantity(book);
+    }
+
+    private void SelectAddress(Address selectedAddress)
+    {
+        CustomerService.User.Addresses.ForEach(x => x.Selected = false);
+        selectedAddress.Selected = true;
+        address = selectedAddress;
+    }
+
+    private void ToggleAddress()
+    {
+        CustomerService.User.Addresses.ForEach(x => x.Selected = false);
+        newAddress = !newAddress;
+        if (newAddress)
+        {
+            address = new Address();
+            setAddress = false;
+        }
+        else address = null;
+    }
+
+
+    private void SelectCard(CustomerCard selectedCard)
+    {
+        payOnDelivery = false;
+        CustomerService.User.Cards.ForEach(x => x.Selected = false);
+        selectedCard.Selected = true;
+        card = selectedCard;
+    }
+
+    private void ToggleCard()
+    {
+        payOnDelivery = false;
+        CustomerService.User.Cards.ForEach(x => x.Selected = false);
+        newCard = !newCard;
+        if (newCard)
+        {
+            card = new CustomerCard();
+            setCard = false;
+        }
+        else card = null;
+    }
+
+    private void BackToCards()
+    {
+        payOnDelivery = false;
+        CustomerService.User.Cards.ForEach(x => x.Selected = false);
+        card = null;
+    }
+
+    private void PayOnDelivery()
+    {
+        payOnDelivery = true;
+        card = null;
+    }
+
+    private bool Verify()
+    {
+        if (address is null)
+            return true;
+
+        if (newAddress && !setAddress)
+            return true;
+
+        if (card is null && !payOnDelivery)
+            return true;
+
+        if (newCard && !setCard)
+            return true;
+
+        if (card != null && payOnDelivery)
+            return true;
+
+        return false;
+    }
+
+    private void Checkout()
+    {
+        CartService.SelectedAddress = address;
+        CartService.SelectedCard = card;
+        CartService.Notes = notes;
+        NavigationManager.NavigateTo("checkout");
+    }
+}

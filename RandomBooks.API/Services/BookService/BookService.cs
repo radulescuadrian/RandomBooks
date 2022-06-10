@@ -76,8 +76,11 @@ public class BookService : IBookService
         {
             book = await _ctx.Books
                 .Include(x => x.Variants.Where(v => !v.Deleted))
+                .ThenInclude(x => x.BookType)
                 .Include(x => x.Authors.Where(a => !a.Deleted))
+                .ThenInclude(x => x.Author)
                 .Include(x => x.Languages.Where(l => !l.Deleted))
+                .ThenInclude(x => x.Language)
                 .Include(x => x.Image)
                 .FirstOrDefaultAsync(b => b.Id == bookId && !b.Deleted);
         }
@@ -359,5 +362,53 @@ public class BookService : IBookService
         await _ctx.SaveChangesAsync();
 
         return new ServiceResponse<Book> { Data = dbBook };
+    }
+
+    public async Task<ServiceResponse<List<string>>> GetBookSearchSuggestions(string searchText)
+    {
+        var books = await _ctx.Books
+            .Where(x => x.Title.ToLower().Contains(searchText.ToLower()) &&
+                        !x.Deleted)
+            .Take(8)
+            .ToListAsync();
+        var result = new List<string>();
+
+        foreach (var book in books)
+        {
+            if (book.Title.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                result.Add(book.Title);
+        }
+
+        return new ServiceResponse<List<string>> { Data = result };
+    }
+
+    public async Task<ServiceResponse<BookListResult>> SearchBooks(string searchText, int page)
+    {
+        var results = 5;
+        var books = await _ctx.Books
+            .Where(x => x.Title.ToLower().Contains(searchText.ToLower()) &&
+                        !x.Deleted)
+            .Include(x => x.Variants.Where(v => !v.Deleted))
+            .Include(x => x.Authors.Where(a => !a.Deleted))
+            .ThenInclude(x => x.Author)
+            .Include(x => x.Image)
+            .ToListAsync();
+        var pageCount = Math.Ceiling(books.Count / (double)results);
+        if (books == null || books.Count == 0)
+            return new ServiceResponse<BookListResult>
+            {
+                Success = false,
+                Message = "No books found"
+            };
+
+        return new ServiceResponse<BookListResult>
+        {
+            Data = new BookListResult
+            {
+                Books = books.Skip((page - 1) * results).Take(results).ToList(),
+                Page = page,
+                Pages = (int)pageCount
+            }
+        };
     }
 }

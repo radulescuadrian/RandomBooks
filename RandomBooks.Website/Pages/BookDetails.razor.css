@@ -1,0 +1,48 @@
+﻿.media-img {
+    max-height: 500px;
+    max-width: 500px;
+    border-radius: 6px;
+    margin: 0 10px 10px 10px;
+}
+
+.media-img-wrapper {
+    max-width: 500px;
+    max-height: 500px;
+    text-align: center;
+}
+
+.original-price {
+    text-decoration: line-through;
+}
+
+img {
+    width: 170.1px;
+    height: 270px;
+    border-radius: 6px;
+    object-fit: contain;
+    background-color: lightgray;
+}
+
+
+
+.box {
+    padding: 15px;
+    border: 1px solid;
+    border-radius: 15px;
+}
+
+.list {
+    width: 60%;
+}
+
+@media (max-width: 1023.99px) {
+    .list {
+        width: 80%;
+    }
+}
+
+@media (min-width: 1024px) and (max-width: 1200px) {
+    .list {
+        width: 70%;
+    }
+}

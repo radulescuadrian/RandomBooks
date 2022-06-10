@@ -159,6 +159,9 @@ public class AuthService : IAuthService
     }
 
     #region Get User information
+    public int GetUserId() =>
+        int.Parse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+
     public string GetUserUsername() =>
         _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
 

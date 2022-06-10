@@ -20,6 +20,12 @@ public class DataContext : DbContext
         
         modelBuilder.Entity<BookLanguages>()
             .HasKey(x => new { x.BookId, x.LanguageId });
+        
+        modelBuilder.Entity<CartItem>()
+            .HasKey(x => new { x.UserId, x.BookId, x.BookTypeId });
+
+        modelBuilder.Entity<OrderItem>()
+            .HasKey(x => new { x.OrderId, x.BookId, x.BookTypeId });
 
         #region Category Seed
         modelBuilder.Entity<Category>().HasData(
@@ -71,6 +77,10 @@ public class DataContext : DbContext
     }
 
     public DbSet<Blob> Blobs { get; set; }
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
+    public DbSet<CartItem> CartItems { get; set; }
+
     public DbSet<User> Users { get; set; }
     public DbSet<CustomerCard> CustomerCards { get; set; }
     public DbSet<CustomerDetails> CustomerDetails { get; set; }

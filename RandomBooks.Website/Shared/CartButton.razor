@@ -1,0 +1,32 @@
+﻿@inject ICartService CartService
+@inject ISyncLocalStorageService LocalStorage
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+<div class="d-flex position-relative">
+    <button class="btn text-white rounded-button" @onclick="GoToCart">
+        <i class="oi oi-cart"></i>
+    </button>
+    @if (GetNumberOfItems() > 0)
+    {
+        <div class="cart-number" style="text-align: center;">
+            <span style="font-size: 10px; vertical-align: super;">
+                @GetNumberOfItems()
+            </span>
+        </div>
+    }
+</div>
+
+@code {
+    private int GetNumberOfItems()
+    {
+        var count = LocalStorage.GetItem<int>("cartItems");
+        return count;
+    }
+
+    protected override void OnInitialized() => CartService.OnChange += StateHasChanged;
+
+    public void Dispose() => CartService.OnChange -= StateHasChanged;
+
+    void GoToCart() => NavigationManager.NavigateTo("cart");
+}

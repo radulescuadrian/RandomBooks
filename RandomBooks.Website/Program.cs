@@ -7,6 +7,7 @@ global using RandomBooks.Website.Logic.Services.CategoryService;
 global using RandomBooks.Website.Logic.Services.LanguageService;
 global using RandomBooks.Website.Logic.Services.PublisherService;
 global using RandomBooks.Website.Logic.Services.AuthorService;
+global using RandomBooks.Website.Logic.Services.CartService;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -30,6 +31,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ILanguageService, LanguageService>();
 builder.Services.AddScoped<IPublisherService, PublisherService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore();

@@ -86,4 +86,18 @@ public class BookController : ControllerBase
         var result = await _bookService.UpdateBook(edit);
         return Ok(result);
     }
+
+    [HttpGet("search/{searchText}/{page}")]
+    public async Task<ActionResult<ServiceResponse<BookListResult>>> SearchBooks(string searchText, int page = 1)
+    {
+        var result = await _bookService.SearchBooks(searchText, page);
+        return Ok(result);
+    }
+
+    [HttpGet("searchsuggestions/{searchText}")]
+    public async Task<ActionResult<ServiceResponse<List<string>>>> GetBookSearchSuggestions(string searchText)
+    {
+        var result = await _bookService.GetBookSearchSuggestions(searchText);
+        return Ok(result);
+    }
 }

@@ -1,11 +1,22 @@
 ﻿@page "/books"
 @page "/books/{categoryName}"
+@page "/search/{searchText}"
 @inject IBookService BookService
 @implements IDisposable
 
 @if(BookService.Books == null || BookService.Books.Count == 0)
 {
-    <span>@BookService.Message</span>
+    if (BookService.Message != "Loading books...")
+    {
+        <center class="mt-5">
+            <img src="book.svg" style="width: 300px;">
+            <h1 class="mt-5">Sorry, no books found.</h1>
+        </center>
+    }
+    else
+    {
+        <span>@BookService.Message</span>
+    }
 }
 else
 {
@@ -14,12 +25,12 @@ else
         {
             <li class="media box my-3">
                 <div class="me-5">
-                    <a href="">
-                        <img src="@(book.Image != null ? book.Image.Data : "book.svg")">
+                    <a href="/book/@book.Id">
+                        <img src="@(book.Image != null ? book.Image.Data : "book.svg")" style="background-color: lightgray;">
                     </a>
                 </div>
                 <div class="media-body position-relative" style="height: 159px;">
-                    <a href="">
+                    <a href="/book/@book.Id">
                         <h4 class="mb-5">@book.Title</h4>
                     </a>
                     <p class="big-text">@book.Description</p>
@@ -101,6 +112,8 @@ else
 @code {
     [Parameter]
     public string? CategoryName { get; set; } = null;
+    [Parameter]
+    public string? SearchText { get; set; } = null;
 
     bool isFirstDisabled = true;
     bool isLastDisabled = false;
@@ -108,7 +121,10 @@ else
     protected override async Task OnParametersSetAsync()
     {
         BookService.InitializePages();
-        await BookService.GetBooks(CategoryName);
+        
+        if(SearchText is null)
+            await BookService.GetBooks(CategoryName);
+        else await BookService.SearchBooks(SearchText);
 
         if (BookService.PageCount == 1)
         {
@@ -126,7 +142,10 @@ else
     private async Task SelectPage(int page)
     {
         BookService.Page = page;
-        await BookService.GetBooks(CategoryName);
+
+        if(SearchText is null)
+            await BookService.GetBooks(CategoryName);
+        else await BookService.SearchBooks(SearchText);
 
         if (page == 1)
         {

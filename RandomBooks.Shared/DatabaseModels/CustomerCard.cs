@@ -28,4 +28,6 @@ public class CustomerCard
     public bool New { get; set; } = false;
     [NotMapped]
     public bool Editing { get; set; } = false;
+    [NotMapped]
+    public bool Selected { get; set; } = false;
 }

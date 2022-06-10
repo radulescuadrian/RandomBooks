@@ -10,6 +10,8 @@ img {
     height: 200px;
     border-radius: 6px;
     transition: transform .2s;
+    object-fit: contain;
+    background-color: lightgray;
     margin-bottom: 10px;
 }
 

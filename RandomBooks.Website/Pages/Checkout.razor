@@ -1,0 +1,155 @@
+﻿@page "/checkout"
+@attribute [Authorize(Roles = "Customer")]
+@inject ICartService CartService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Checkout</PageTitle>
+
+@if(cart == null || cart.Count == 0)
+{
+    if (message != "Loading cart...")
+    {
+        <center class="mt-5">
+            <img src="cart.svg" style="width: 300px;">
+            <h1 class="mt-5">Sorry, your cart is empty.</h1>
+        </center>
+    }
+    else
+    {
+        <h3>Shopping Cart</h3>
+        <span>@message</span>
+    }
+}
+else
+{
+    <center class="mb-5"><h3>Shopping Cart</h3></center>
+    <div class="mb-5" style="width: 50%; margin: 0 auto;">
+        @foreach (var item in cart)
+        {
+            <div class="container ms-auto">
+                <img src="@item.Image" class="me-3" style="background-color: lightgray;"/>
+                <div class="cart-details">
+                    <div class="d-flex mb-2">
+                        <h5 class="my-auto"><a href="/book/@item.BookId">@item.Title</a></h5>
+                        <p class="my-auto">&nbsp; - &nbsp;</p>
+                        <p class="my-auto text-danger">@item.Category</p>
+                    </div>
+                    <span class="text-info fw-bold">@item.BookType</span><br/>
+
+                    <div class="d-flex">
+                        <h5 class="my-auto me-3">Quantity:</h5>
+                        <h5 class="my-auto fw-bold text-dark">@item.Quantity</h5>
+                    </div>
+
+                    <div class="d-flex">
+                        <h5 class="me-3" style="margin-top: 5px;">Price:</h5>
+                        <div class="price my-auto fw-bold">$ @(item.Price * item.Quantity)</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="total-container mb-5">
+        <div class="fw-bold d-flex">
+            Total (@cart.Count): <p class="ms-3 mb-0 price">$ @cart.Sum(product => product.Price * product.Quantity)</p>
+        </div>
+    </div>
+
+    <div style="width: 50%; margin: 0 auto;">
+        <div class="container ms-auto">
+            <div class="cart-details">
+                <div class="d-flex">
+                    <h5 class="me-3">Payment Method</h5>
+                    <div class="mb-5">
+                        @if (CartService.SelectedCard is null)
+                        {
+                            <h5 class="text-success">On delivery</h5>
+                        }
+                        else
+                        {
+                            <div class="d-flex grid-item p-1 me-5" style="border: 1px solid rgba(0, 0, 0, 0.8); margin-left: 3px;">
+                                <div class="me-3">
+                                    <p class="fw-bold text-start mb-0">Number</p>
+                                </div>
+                                <div class="ps-1">
+                                    <p class="text-start mb-0">**** **** **** @(CartService.SelectedCard.Number.Substring(CartService.SelectedCard.Number.Length - 4))</p>
+                                </div>  
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="d-flex">
+                    <h5 class="me-3">Delivery Address</h5>
+                    <div class="grid-item p-1 showDetails mb-5" style="border: 1px solid rgba(0, 0, 0, 0.8); margin-top: 3px;">
+                        <div class="row mx-auto">
+                            <div class="col-6 pe-0">
+                                <p class="fw-bold text-start">Country</p>
+                            </div>
+                            <div class="col-6 ps-1">
+                                <p class="text-start" style="width: 80px;">@CartService.SelectedAddress.Country</p>
+                            </div>                   
+                        </div>
+                        <div class="row mx-auto">
+                            <div class="col-6 pe-0">
+                                <p class="fw-bold text-start">City</p>
+                            </div>
+                            <div class="col-6 ps-1">
+                                <p class="text-start">@CartService.SelectedAddress.City</p>
+                            </div> 
+                        </div>
+                        <div class="row mx-auto">
+                            <div class="col-6 pe-0">
+                                <p class="fw-bold text-start">Street</p>
+                            </div>
+                            <div class="col-6 ps-1">
+                                <p class="text-start">@CartService.SelectedAddress.Street</p>
+                            </div>  
+                        </div>
+                        <div class="row mx-auto">
+                            <div class="col-6 pe-0">
+                                <p class="fw-bold text-start">Zip</p>
+                            </div>
+                            <div class="col-6 ps-1">
+                                <p class="text-start">@CartService.SelectedAddress.Zip</p>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="d-flex">
+                    <h5 class="me-3">Notes</h5>
+                    <p class="text-dark">@(CartService.Notes is null ? "none specified." : CartService.Notes)</p>
+                </div>
+                <hr />
+
+                <div class="mb-5 mt-5">
+                    <button class="btn btn-danger" @onclick="Back">
+                        <h4 class="mb-0">Back to Cart</h4>
+                    </button>
+
+                    <button class="btn bg-black text-white float-end">
+                        <h4 class="mb-0">Order</h4>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<CartProductResponse> cart = null;
+    string message = "Loading checkout...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CartService.GetNumberOfItems();
+        cart = await CartService.GetProducts();
+        if (cart == null || cart.Count == 0)
+            message = "Your cart is empty.";
+    }
+
+    private void Back() => NavigationManager.NavigateTo("cart");
+}

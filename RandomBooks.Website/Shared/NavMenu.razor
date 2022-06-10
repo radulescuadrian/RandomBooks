@@ -1,4 +1,5 @@
 ﻿@inject ICategoryService CategoryService
+@inject IBookService BookService
 @inject NavigationManager NavigationManager
 @implements IDisposable
 
@@ -11,7 +12,7 @@
         </div>
 
         <div class="nav-item dropdown ps-3">
-            <a class="dropdown-toggle fw-bold" href="" style="padding: 8px 16px;" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+            <a class="dropdown-toggle fw-bold" style="padding: 8px 16px;" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                  Books
             </a>
             
@@ -24,17 +25,31 @@
         </div>
 
         <div class="nav-item px-1 ps-3 me-2 search" style="padding-top: 13px; flex: 1;">
-            <input class="form-control my-auto"/>
-
+            <input class="form-control my-auto"
+                   @bind-value="searchText"
+                   @bind-value:event="oninput"
+                   type="search"
+                   list="bookList"
+                   @onkeyup="HandleBookSearch"
+                   placeholder="Search Books"/>
+            <datalist id="bookList">
+                @foreach (var book in suggestions)
+                {
+                    <option>@book</option>
+                }
+            </datalist>
         </div>
 
-        <div class="nav-item my-auto mr-2">
+        <div class="nav-item my-auto mr-2 d-flex">
             <AuthenticateButton />
         </div>
     </nav>
 </div>
 
 @code {
+    private string searchText = string.Empty;
+    private List<string> suggestions = new List<string>();
+
     private bool showCategories = false;
     private string CategoriesCssClass => showCategories ? "show-menu" : null;
 
@@ -64,13 +79,24 @@
     {
         if (name == "All books")
             return "books";
-        
+
         var categoryUrl = name.ToLower().Trim().Replace(' ', '-');
         return $"books/{categoryUrl}";
     }
 
-    private void Home()
+    private void Home() => NavigationManager.NavigateTo("");
+
+    public void SearchBooks()
     {
-        NavigationManager.NavigateTo("");
+        NavigationManager.NavigateTo($"search/{searchText}");
+        searchText = string.Empty;
+    }
+
+    public async Task HandleBookSearch(KeyboardEventArgs args)
+    {
+        if (args.Key == null || args.Key.Equals("Enter"))
+            SearchBooks();
+        else if (searchText.Length > 1)
+            suggestions = await BookService.GetBookSearchSuggestions(searchText);
     }
 }

@@ -4,7 +4,17 @@
 
 @if (book is null)
 {
-    <span>@message</span>
+    if (message != "Loading book...")
+    {
+        <center class="mt-5">
+            <img src="book.svg" style="width: 300px;">
+            <h1 class="mt-5">Sorry, we couldn't find your book'.</h1>
+        </center>
+    }
+    else
+    {
+        <span>@message</span>
+    }
 }
 else
 {
@@ -12,7 +22,7 @@ else
         <div class="media box my-3">
             <div class="me-5">
                 <a href="/book/@book.Id">
-                    <img src="@(book.Image != null ? book.Image.Data : "book.svg")">
+                    <img src="@(book.Image != null ? book.Image.Data : "book.svg")" style="background-color: lightgray;">
                 </a>
             </div>
             <div class="media-body position-relative">

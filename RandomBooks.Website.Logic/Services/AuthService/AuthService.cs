@@ -25,6 +25,13 @@ public class AuthService : IAuthService
         return string.Empty;
     }
 
+    public async Task<int?> GetUserId()
+    {
+        if (await IsUserAuthenticated())
+            return int.Parse((await _authStateProvider.GetAuthenticationStateAsync()).User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value);
+        return null;
+    }
+
     public async Task<string> GetUsername()
     {
         if (await IsUserAuthenticated())

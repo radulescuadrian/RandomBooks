@@ -1,18 +1,17 @@
 ﻿@page "/checkout"
 @attribute [Authorize(Roles = "Customer")]
 @inject ICartService CartService
+@inject IOrderService OrderService
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Checkout</PageTitle>
 
 @if(cart == null || cart.Count == 0)
 {
-    if (message != "Loading cart...")
+    if (message != "Loading checkout...")
     {
-        <center class="mt-5">
-            <img src="cart.svg" style="width: 300px;">
-            <h1 class="mt-5">Sorry, your cart is empty.</h1>
-        </center>
+        NavigationManager.NavigateTo("cart");
     }
     else
     {
@@ -121,7 +120,7 @@ else
                 
                 <div class="d-flex">
                     <h5 class="me-3">Notes</h5>
-                    <p class="text-dark">@(CartService.Notes is null ? "none specified." : CartService.Notes)</p>
+                    <p class="text-secondary">@(CartService.Notes is null ? "none specified." : CartService.Notes)</p>
                 </div>
                 <hr />
 
@@ -130,7 +129,7 @@ else
                         <h4 class="mb-0">Back to Cart</h4>
                     </button>
 
-                    <button class="btn bg-black text-white float-end">
+                    <button class="btn bg-black text-white float-end" @onclick="PlaceOrder">
                         <h4 class="mb-0">Order</h4>
                     </button>
                 </div>
@@ -152,4 +151,15 @@ else
     }
 
     private void Back() => NavigationManager.NavigateTo("cart");
+
+    private async void PlaceOrder()
+    {
+        var response = await OrderService.PlaceOrder();
+        if (response == "OK")
+        {
+            await CartService.GetNumberOfItems();
+            NavigationManager.NavigateTo("order-success");
+        }
+        else await JSRuntime.InvokeVoidAsync("alert", $"Something went wrong\n{response}");
+    }
 }

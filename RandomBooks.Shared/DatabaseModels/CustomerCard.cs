@@ -6,12 +6,14 @@ namespace RandomBooks.Shared.DatabaseModels;
 public class CustomerCard
 {
     public int Id { get; set; }
-    public int CustomerDetailsId { get; set; }
+    public int? CustomerDetailsId { get; set; }
 
     [Required]
     public string Name { get; set; } = string.Empty;
 
     [Required]
+    [MinLength(16, ErrorMessage = "Invalid card number")]
+    [MaxLength(16, ErrorMessage = "Invalid card number")]
     public string Number { get; set; } = string.Empty;
 
     [Required]

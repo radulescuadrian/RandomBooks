@@ -294,7 +294,9 @@ else
     protected override async Task OnInitializedAsync()
     {
         isAuthenticated = await AuthService.IsUserAuthenticated();
-        await CustomerService.GetProfile();
+        if (isAuthenticated)
+            await CustomerService.GetProfile();
+
         await LoadCart();
     }
 

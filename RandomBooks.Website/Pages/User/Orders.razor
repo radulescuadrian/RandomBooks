@@ -1,0 +1,119 @@
+﻿@page "/orders"
+@attribute [Authorize(Roles = "Customer")]
+@inject IOrderService OrderService
+
+@if(orders == null)
+{
+    <h3>Orders</h3>
+    <span>Loading your orders...</span>
+}
+else if(orders.Count <= 0)
+{
+    <center class="mt-5">
+        <h1>You have no orders, yet.</h1>
+    </center>
+}
+else
+{
+    <h2>Orders</h2>
+    <Virtualize Context="order" Items="orders">
+        <div class="container container-center mt-5" style="border: 1px solid black; border-radius: 20px; margin-bottom: 50px !important;">
+            <div>
+                <div class="row d-flex" style="width: 100%; margin: auto; margin-top: 7px;">
+                    <div class="col">
+                        <h1 class="mb-0" style="padding-top: 3px;"><strong>Order #@order.Id</strong></h1>
+                    </div>
+                    <div class="col">
+                        <h3 style="float: right; margin-top: 7px;"><strong>@order.DatePlaced.ToString("dd MMMM yyyy")</strong></h3>
+                    </div>
+                </div>
+                <hr />
+                <div class="row d-flex" style="width: 100%; margin: auto;">
+                    <div class="col-7">
+                        <h2><strong>Products</strong></h2>
+                        @foreach (var book in order.Books)
+                        {
+                            <div class="d-flex">
+                                <strong class="me-1" style="width: 135px;">@book.Title</strong>
+                                <p class="me-2 mb-0" style="width: 90px;">- <span class="text-secondary">@book.Type</span> -</p>
+                                <p class="me-2 mb-0" style="width: 30px;">x @book.Quantity</p>
+                                <p class="me-2 mb-0 price fw-bold col" style="width: 30px;">$ @book.Price</p>
+                            </div>
+                        }
+                        <p>@order.ItemsText</p>
+
+                        <div class="d-flex">
+                            <strong class="me-3">TOTAL</strong>
+                            <p class="price fw-bold">$ @order.Total</p>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <div class="float-end">
+                            <h2><strong>Delivery address</strong></h2>
+                            <div class="d-flex ">
+                                <div class="me-3" style="flex: 0;">
+                                    <p class="mb-0 fw-bold">Country</p>
+                                    <p class="mb-0 fw-bold">City</p>
+                                    <p class="mb-0 fw-bold">Street</p>
+                                    <p class="mb-0 fw-bold">Zip</p>
+                                </div>
+                                <div style="flex: 1;">
+                                    <p class="mb-0">@order.Address.Country</p>
+                                    <p class="mb-0">@order.Address.City</p>
+                                    <p class="mb-0">@order.Address.Street</p>
+                                    <p class="mb-0">@order.Address.Zip</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row d-flex" style="width: 100%; margin: auto; margin-bottom: 9px;">
+                    <div class="col">
+                        <h2><strong>Payment Method</strong></h2>
+                        @if (string.IsNullOrEmpty(order.Payment))
+                        {
+                            <p><strong class="me-4">CASH</strong>you will pay the courier</p>
+                        }
+                        else
+                        {
+                            <p><strong class="me-4">CARD</strong>@order.Payment</p>
+                        }
+
+                        <h2 class="mt-5"><strong>Status</strong></h2>
+                        <div class="d-flex">
+                            <h5>@order.LastModified.ToString("dd MMMM yyyy") &nbsp; - </h5>
+                            <div class="col ms-4">
+                                <h5 class="text-danger">@order.Status</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col pe-0">
+                        <div>
+                            <h2><strong>Notes</strong></h2>
+                            @if (string.IsNullOrEmpty(order.Notes))
+                            {
+                                <p>None specified</p>
+                            }
+                            else
+                            {
+                                <div style="padding: 10px; border: 1px solid black; border-radius: 5px; padding-top: 2px; word-break: break-word;">
+                                    <p>@order.Notes</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </Virtualize>
+}
+
+@code {
+    List<OrdersResponse> orders = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        orders = await OrderService.GetOrders();
+    }
+}

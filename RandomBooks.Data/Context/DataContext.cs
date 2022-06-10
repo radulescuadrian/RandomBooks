@@ -72,7 +72,36 @@ public class DataContext : DbContext
             {
                 Id = 3,
                 Name = "Audiobook"
-            }); 
+            });
+        #endregion
+
+        #region Status Seed
+        modelBuilder.Entity<Status>().HasData(
+            new BookType
+            {
+                Id = 1,
+                Name = "Placed"
+            },
+            new BookType
+            {
+                Id = 2,
+                Name = "Being Prepared"
+            },
+            new BookType
+            {
+                Id = 3,
+                Name = "Ready to Deliver"
+            },
+            new BookType
+            {
+                Id = 4,
+                Name = "Delivery in Progress"
+            },
+            new BookType
+            {
+                Id = 5,
+                Name = "Delivered"
+            });
         #endregion
     }
 

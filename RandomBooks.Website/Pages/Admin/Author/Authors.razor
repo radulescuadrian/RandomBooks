@@ -45,7 +45,7 @@ else
                         <div class="my-auto ms-2 @IsDeleted(author)" style="font-size: 16px;">@author.Name</div>
                     </div>
                 </div>
-                <div class="col my-auto @IsDeleted(author) big-text" style="font-size: 12px;">@author.Description</div>
+                <div class="col my-auto @IsDeleted(author) big-text" style="font-size: 12px; word-break: break-word;">@author.Description</div>
                 <div class="col my-auto col-visible">
                     <span>@(author.Deleted ? "✔️" : "")</span>
                 </div>

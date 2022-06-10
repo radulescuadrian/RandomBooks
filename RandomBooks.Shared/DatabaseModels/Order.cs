@@ -16,8 +16,13 @@ public class Order
     public decimal Total { get; set; }
 
     public List<OrderItem> Books { get; set; }
+
     public Address Address { get; set; }
+    public int AddressId { get; set; }
+
     public CustomerCard? Payment { get; set; }
+    public int? PaymentId { get; set; }
+
     public int? EmployeeId { get; set; }
     public int? CourierId { get; set; }
     public int StatusId { get; set; } = 1;

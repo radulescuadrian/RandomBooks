@@ -4,7 +4,7 @@ namespace RandomBooks.Website.Logic.Services.AuthService;
 
 public interface IAuthService
 {
-    Task<ServiceResponse<bool>> ChangePassword(UserChangePassword request);
+    Task<ServiceResponse<bool>> ChangePassword(UserChangePassword request, int id = 0);
     Task<int?> GetUserId();
     Task<string> GetUsername();
     Task<string> GetUserRole();

@@ -1,11 +1,49 @@
 ﻿@page "/admin/dashboard"
 @layout Shared.Layouts.AdminLayout
 @attribute [Authorize(Roles = "Admin")]
+@inject IChartService ChartService
 
 <PageTitle>Admin</PageTitle>
 
 <h3>Dashboard</h3>
 
-@code {
+<hr />
+<MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@Dates" Width="100%" Height="350px">
+    <CustomGraphics>
+		<text x="80" y="35" class="fw-bold">Total: @Total Orders</text>
+	</CustomGraphics>
+</MudChart>
+<hr />
 
+@code {
+    public List<ChartSeries> Series = new List<ChartSeries>();
+    string[] Dates = { };
+    double[] Orders = { };
+    int Total = 0;
+
+    List<OrderCounter> lastMonthOrders = new ();
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await ChartService.GetLastMonthOrders();
+        if (result.Success)
+            lastMonthOrders = result.Data;
+
+        var orders = new List<double>();
+        var dates = new List<string>();
+
+        lastMonthOrders.ForEach(x =>
+        {
+            Total += x.Orders;
+            orders.Add(x.Orders);
+            dates.Add(x.Date.ToString("dd MMM"));
+        });
+
+
+        Orders = orders.ToArray();
+        Dates = dates.ToArray();
+
+        Series.Add(new ChartSeries() { Name = "Orders placed in the last 10 days", Data = Orders });
+
+        StateHasChanged();
+    }
 }

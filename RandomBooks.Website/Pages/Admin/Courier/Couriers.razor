@@ -1,0 +1,155 @@
+﻿@page "/admin/couriers"
+@layout Shared.Layouts.AdminLayout
+@attribute [Authorize(Roles = "Admin")]
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+<div class="d-flex">
+    <h3 class="mb-0">Couriers</h3>
+    <a href="/admin/add/courier" class="btn bg-black text-white ms-auto">Add new courier</a>
+</div>
+<hr />
+
+@if (UserService.Couriers is null || UserService.Couriers.Count == 0)
+{
+    <h2 class="mx-auto my-auto">@UserService.Message</h2>
+}
+else
+{
+    <div class="header">
+        <div class="col" style="text-align: start;">Username</div>
+        <div class="col" style="text-align: start;">Orders Delivered</div>
+        <div class="col" style="text-align: start;">Rating</div>
+        <div class="col" style="text-align: start;">Date joined</div>
+        <div class="col">Deactivated</div>
+        <div class="col"></div>
+    </div>
+
+    <div class="mb-2" style="height: 450px;">
+        @foreach (var user in UserService.Couriers)
+        {
+            <div class="row @IsDeactivated(user) showDetails" style="height: 90px;">
+                <div class="col my-auto fw-bold">@user.Username</div>
+                <div class="col my-auto">@user.OrdersDelivered</div>
+                <div class="col my-auto">@(user.Rating == 0 ? "not rated" : user.Rating)</div>
+                <div class="col my-auto">@user.DateHired.ToString("dd MMM yyyy")</div>
+                <div class="col my-auto col-visible">
+                    <span>@(user.Deactivated ? "❌" : "")</span>
+                </div>
+                <div class="col my-auto">
+                    <button class="btn bg-black text-white hide" style="font-size:12px;" @onclick="(() => CourierDetails(user.Id))">
+                        Details
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="mx-auto" style="text-align: center;">
+        <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isFirstDisabled
+                @onclick="(() => SelectPage(1))">
+            <p style="margin: 0; font-weight: 900;"><i class="oi oi-chevron-left"></i>&nbsp First</p>
+        </button>
+
+        @if (UserService.PageCount <= 5)
+        {
+            for (var i = 1; i <= UserService.PageCount; i++)
+            {
+                var page = i;
+                <button class="btn @(i == UserService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
+            }
+        }
+        else if (UserService.Page < 4)
+        {
+            for (var i = 1; i <= 4; i++)
+            {
+                var page = i;
+                <button class="btn @(i == UserService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
+            }
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+        }
+        else if (UserService.Page > UserService.PageCount - 3)
+        {
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+            for (var i = UserService.PageCount - 3; i <= UserService.PageCount; i++)
+            {
+                var page = i;
+                <button class="btn @(i == UserService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
+            }
+        }
+        else
+        {
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+            for (var i = UserService.Page - 2; i <= UserService.Page + 2; i++)
+            {
+                var page = i;
+                <button class="btn @(i == UserService.Page ? "bg-black text-white" : "btn-outline-black")"
+                        style="margin: 2px;"
+                        @onclick="(() => SelectPage(page))">@i</button>
+            }
+            <p class="btn btn-outline-black" style="margin: 2px;">...</p>
+        }
+
+        <button class="btn btn-outline-black" style="margin: 2px;" disabled=@isLastDisabled
+                @onclick="(() => SelectPage(UserService.PageCount))">
+            <p style="margin: 0; font-weight: 900;">Last &nbsp<i class="oi oi-chevron-right"></i></p>
+        </button>
+    </div>
+}
+
+@code {
+    bool isFirstDisabled = true;
+    bool isLastDisabled = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        UserService.InitializePages();
+        await UserService.GetCouriers();
+        if (UserService.PageCount == 1)
+        {
+            isFirstDisabled = true;
+            isLastDisabled = true;
+        }
+        UserService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose() => UserService.OnChange -= StateHasChanged;
+
+    private async Task SelectPage(int page)
+    {
+        UserService.Page = page;
+        await UserService.GetCouriers();
+
+        if(UserService.PageCount == 1)
+        {
+            isFirstDisabled = true;
+            isLastDisabled = true;
+        }
+        else if (page == 1)
+        {
+            isFirstDisabled = true;
+            isLastDisabled = false;
+        }
+        else if (page == UserService.PageCount)
+        {
+            isFirstDisabled = false;
+            isLastDisabled = true;
+        }
+        else
+        {
+            isFirstDisabled = false;
+            isLastDisabled = false;
+        }
+    }
+
+    private string IsDeactivated(CouriersResponse user) => user.Deactivated ? "text-danger" : string.Empty;
+
+    private void CourierDetails(int courierId) => NavigationManager.NavigateTo($"admin/courier/{courierId}");
+}

@@ -80,16 +80,16 @@ else
                         <EditForm Model="address" OnValidSubmit="@(() => setAddress = true)">
                             <DataAnnotationsValidator></DataAnnotationsValidator>
                             <div class="mb-3">
-                                <label for="street">Street</label>
-                                <InputText id="street" class="form-control" @bind-Value="address.Country" />
+                                <label for="country">Country</label>
+                                <InputText id="country" class="form-control" @bind-Value="address.Country" />
                             </div>
                             <div class="mb-3">
                                 <label for="city">City</label>
                                 <InputText id="city" class="form-control" @bind-Value="address.City" />
                             </div>
                             <div class="mb-3">
-                                <label for="state">State</label>
-                                <InputText id="state" class="form-control" @bind-Value="address.Street" />
+                                <label for="street">Street</label>
+                                <InputText id="street" class="form-control" @bind-Value="address.Street" />
                             </div>
                             <div class="mb-3">
                                 <label for="zip">ZIP</label>

@@ -2,37 +2,198 @@
 @layout Shared.Layouts.AdminLayout
 @attribute [Authorize(Roles = "Admin")]
 @inject IUserService UserService
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 
-@if (loading)
+@if (customer is null)
 {
-    <div style="text-align: center;">
-        <h2>@message</h2>
-    </div>
+    if (loading)
+    {
+        <div style="text-align: center;">
+            <h2>@message</h2>
+        </div>
+    }
+    else
+    {
+        <div style="text-align: center;">
+            <h2>No details found for the specified customer</h2>
+        </div>
+    }
 }
 else
 {
-    <h2>@customer.Username</h2>
+    <div class="d-flex">
+        <h2>@customer.Username</h2>
+        @if (customer.Deactivated)
+        {
+            <button class="btn bg-black text-white fw-bold ms-auto" @onclick="Activate">
+                Activate
+            </button>
+        }
+        else
+        {
+            <button class="btn btn-danger fw-bold ms-auto" @onclick="Deactivate">
+                Deactivate
+            </button>
+        }
+    </div>
+    <hr />
+    <div class="row">
+        <div class="p-0 me-5" style="flex: 0;">
+            <img src="@(customer.Image is null ? "user.svg" : customer.Image)">
+        </div>
+        <div class="col">
+            <div class="d-flex">
+                <h4 class="me-5">Firstname</h4>
+                <h4 class="fw-normal text-secondary">@(customer.Firstname is null ? "not set" : customer.Firstname)</h4>
+            </div>
+            <div class="d-flex">
+                <h4 class="me-5">Lastname</h4>
+                <h4 class="fw-normal text-secondary">@(customer.Lastname is null ? "not set" : customer.Lastname)</h4>
+            </div>
+            <div class="d-flex">
+                <h4 class="me-5">Email</h4>
+                <h4 class="fw-normal text-secondary">@(customer.Email is null ? "not set" : customer.Email)</h4>
+            </div>
+            <div class="d-flex">
+                <h4 class="me-5">Phone Number</h4>
+                <h4 class="fw-normal text-secondary">@(customer.PhoneNumber is null ? "not set" : customer.PhoneNumber)</h4>
+            </div>
+            <div class="d-flex">
+                <h4 class="me-5">Date Joined</h4>
+                <h4 class="fw-normal text-secondary">@customer.DateJoined.ToString("dd MMM yyyy")</h4>
+            </div>
+            <div class="d-flex">
+                <h4 class="me-5">Number of Cards</h4>
+                <h4 class="fw-normal text-secondary">@customer.NumberOfCards</h4>
+            </div>
+            @if (customer.Deactivated)
+            {
+                <h2 class="text-danger">DEACTIVATED</h2>
+            }
+        </div>
+    </div>
+    <hr />
+
+    <h2>Addresses</h2>
+    <div class="grid-container">
+        @if (customer.Addresses.Count == 0)
+        {
+            <center><h2 class="text-danger fw-light">No addresses set</h2></center>
+        }
+        else
+        {
+            foreach (var address in customer.Addresses)
+            {
+                <div class="grid-item p-1">
+                    <div class="grid-item p-1 showDetails" style="border: 1px solid rgba(0, 0, 0, 0.8);">
+                        <div class="row mx-auto">
+                            <div class="col-6 pe-0">
+                                <p class="fw-bold text-start">Country</p>
+                            </div>
+                            <div class="col-6 ps-1">
+                                <p class="text-start" style="width: 80px;">@address.Country</p>
+                            </div>                   
+                        </div>
+                        <div class="row mx-auto">
+                            <div class="col-6 pe-0">
+                                <p class="fw-bold text-start">City</p>
+                            </div>
+                            <div class="col-6 ps-1">
+                                <p class="text-start">@address.City</p>
+                            </div> 
+                        </div>
+                        <div class="row mx-auto">
+                            <div class="col-6 pe-0">
+                                <p class="fw-bold text-start">Street</p>
+                            </div>
+                            <div class="col-6 ps-1">
+                                <p class="text-start">@address.Street</p>
+                            </div>  
+                        </div>
+                        <div class="row mx-auto">
+                            <div class="col-6 pe-0">
+                                <p class="fw-bold text-start mb-0">Zip</p>
+                            </div>
+                            <div class="col-6 ps-1">
+                                <p class="text-start mb-0">@address.Zip</p>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    <hr />
+
+    <h2>Orders</h2>
+    <div class="grid-container">
+        @if (customer.Orders.Count == 0)
+        {
+            <center><h2 class="text-danger fw-light">No orders placed</h2></center>
+        }
+        else
+        {
+            <Virtualize Context="order" Items="customer.Orders">
+                <div class="container container-center mt-5" style="width: 680px; border: 1px solid black; border-radius: 20px;">
+                    <div>
+                        <div class="d-flex" style="width: 100%; margin: auto; margin-top: 7px;">
+                            <div class="col me-5">
+                                <a href="/admin/order/@order.Id" class="d-flex" style="cursor: pointer;">
+                                    <h4 class="mb-0">Order</h4>
+                                    <h4 class="mb-0 ms-3 fw-bold text-secondary">#@order.Id</h4>
+                                </a>
+                            </div>
+                            <div class="d-flex col" style="flex: 2;">
+                                <h4>Total:</h4>
+                                <h4 class="ms-3 price">$ @order.Total</h4>
+                            </div>
+                            <div class="float-end" style="flex: 1;">
+                                <h4 class="text-danger">@order.Payment</h4>
+                            </div>
+                            <div class="float-end">
+                                <h4><strong>@order.DatePlaced.ToString("dd MMMM yyyy")</strong></h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Virtualize>
+        }
+    </div>
 }
 
 @code {
     [Parameter]
     public int Id { get; set; }
 
-    User customer = new();
+    CustomerDetailsResponse? customer = new();
     bool loading = true;
-    string message = "Loading author...";
+    string message = "Loading customer details...";
 
     protected override async Task OnParametersSetAsync()
     {
-        var dbUser = (await UserService.GetUser(Id)).Data;
+        var dbUser = await UserService.GetCustomerDetails(Id);
         if (dbUser == null)
-        {
-            message = $"User with Id '{Id}' does not exist!";
-            return;
-        }
+            customer = null;
+        else customer = dbUser.Data;
 
-        customer = dbUser;
         loading = false;
+    }
+
+    private async Task Deactivate()
+    {
+        var result = await UserService.DeactivateUser(Id);
+        if (!result.Success)
+            await JSRuntime.InvokeVoidAsync("alert", "Something went wrong");
+        else customer = (await UserService.GetCustomerDetails(Id)).Data;
+    }
+    
+
+    private async Task Activate()
+    {
+        var result = await UserService.ActivateUser(Id);
+        if (!result.Success)
+            await JSRuntime.InvokeVoidAsync("alert", "Something went wrong");
+        else customer = (await UserService.GetCustomerDetails(Id)).Data;
     }
 }

@@ -2,17 +2,24 @@
 @attribute [Authorize(Roles = "Customer")]
 @inject ICustomerService CustomerService
 @inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
 @implements IDisposable
-
-<h2>Profile</h2>
-<hr />
 
 @if (CustomerService.User == null)
 {
+    <h2>Profile</h2>
+    <hr />
     <h2 class="mx-auto my-auto">Loading user details...</h2>
 }
 else
 {
+    <div class="d-flex">
+        <h2 class="mb-0">Profile</h2>
+        <button class="btn bg-black text-white fw-bold ms-auto" @onclick="ChangePassword">
+            Change password
+        </button>
+    </div>
+    <hr />
     <div class="box mb-5" style="position: relative; height: 326px; width: 894px; margin: 0 auto;">
         <div class="float-end" style="position: absolute; right: 20px;">
             @if (CustomerService.User.Editing)
@@ -366,6 +373,8 @@ else
     }
 
     public void Dispose() => CustomerService.OnChange -= StateHasChanged;
+
+    private void ChangePassword() => NavigationManager.NavigateTo("change-password");
 
     private void Edit() => CustomerService.User.Editing = true;
 

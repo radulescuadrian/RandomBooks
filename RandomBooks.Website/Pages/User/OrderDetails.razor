@@ -1,0 +1,168 @@
+﻿@page "/order/{id:int}"
+@attribute [Authorize(Roles = "Customer")]
+@inject IOrderService OrderService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+@if(order == null)
+{
+    if (loaded)
+    {
+        <h2 class="mt-5 pt-5">Order not found!</h2>
+    }
+    else
+    {
+        <h3>Orders</h3>
+        <span>Loading order...</span>
+    }
+}
+else
+{
+    <center><h2>Order #@order.Id</h2></center>
+    <div class="container container-center mt-5" style="border: 1px solid black; border-radius: 20px; margin-bottom: 50px !important;">
+        <div>
+            <div class="row d-flex" style="width: 100%; margin: auto; margin-top: 7px;">
+                <div class="col">
+                    <div class="d-flex">
+                        <h1 class="mb-0" style="padding-top: 3px;">Order</h1>
+                        <h1 class="mb-0 ms-5 fw-bold text-secondary" style="padding-top: 3px;">#@order.Id</h1>
+                    </div>
+                </div>
+                <div class="col">
+                    <h3 style="float: right; margin-top: 7px;"><strong>@order.DatePlaced.ToString("dd MMMM yyyy")</strong></h3>
+                </div>
+            </div>
+            <hr />
+            <div class="row d-flex" style="width: 100%; margin: auto;">
+                <div class="col-7">
+                    <h2><strong>Products</strong></h2>
+                    @foreach (var book in order.Books)
+                    {
+                        <div class="d-flex">
+                            <strong class="me-1" style="width: 135px;">@book.Title</strong>
+                            <p class="me-2 mb-0" style="width: 90px;">- <span class="text-secondary">@book.Type</span> -</p>
+                            <p class="me-2 mb-0" style="width: 30px;">x @book.Quantity</p>
+                            <p class="me-2 mb-0 price fw-bold col" style="width: 30px;">$ @book.Price</p>
+                        </div>
+                    }
+                    <p>@order.ItemsText</p>
+
+                    <div class="d-flex">
+                        <strong class="me-3">TOTAL</strong>
+                        <p class="price fw-bold">$ @order.Total</p>
+                    </div>
+                </div>
+                <div class="col-5">
+                    <div class="float-end">
+                        <h2><strong>Delivery address</strong></h2>
+                        <div class="d-flex ">
+                            <div class="me-3" style="flex: 0;">
+                                <p class="mb-0 fw-bold">Country</p>
+                                <p class="mb-0 fw-bold">City</p>
+                                <p class="mb-0 fw-bold">Street</p>
+                                <p class="mb-0 fw-bold">Zip</p>
+                            </div>
+                            <div style="flex: 1;">
+                                <p class="mb-0">@order.Address.Country</p>
+                                <p class="mb-0">@order.Address.City</p>
+                                <p class="mb-0">@order.Address.Street</p>
+                                <p class="mb-0">@order.Address.Zip</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div class="row d-flex" style="width: 100%; margin: auto; margin-bottom: 9px;">
+                <div class="col">
+                    <h2><strong>Payment Method</strong></h2>
+                    @if (string.IsNullOrEmpty(order.Payment))
+                    {
+                        <p><strong class="me-4">CASH</strong>you will pay the courier</p>
+                    }
+                    else
+                    {
+                        <p><strong class="me-4">CARD</strong>@order.Payment</p>
+                    }
+
+                    <h2 class="mt-5"><strong>Status</strong></h2>
+                    <div class="d-flex">
+                        <h5>@order.LastModified.ToString("dd MMMM yyyy") &nbsp; - </h5>
+                        <div class="col ms-4">
+                            <h5 class="text-danger">@order.Status</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col pe-0">
+                    <div>
+                        <h2><strong>Notes</strong></h2>
+                        @if (string.IsNullOrEmpty(order.Notes))
+                        {
+                            <p>None specified</p>
+                        }
+                        else
+                        {
+                            <div style="padding: 10px; border: 1px solid black; border-radius: 5px; padding-top: 2px; word-break: break-word;">
+                                <p>@order.Notes</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (order.StatusId == 5)
+    {
+        <center><h3>Rate this order</h3></center>
+        <center><p class="text-secondary">It helps our drivers</p></center>
+        <div class="d-flex">
+            <div class="container-center d-flex">
+                <div class="rate" style="margin: 0 auto;">
+                    <input type="radio" id="star5" name="rate" value="5" @onchange="(() => RateOrder(5))"/>
+                    <label for="star5" title="text" style="@Check(5)">5 stars</label>
+                    <input type="radio" id="star4" name="rate" value="4" @onchange="(() => RateOrder(4))"/>
+                    <label for="star4" title="text" style="@Check(4)">4 stars</label>
+                    <input type="radio" id="star3" name="rate" value="3" @onchange="(() => RateOrder(3))"/>
+                    <label for="star3" title="text" style="@Check(3)">3 stars</label>
+                    <input type="radio" id="star2" name="rate" value="2" @onchange="(() => RateOrder(2))"/>
+                    <label for="star2" title="text" style="@Check(2)">2 stars</label>
+                    <input type="radio" id="star1" name="rate" value="1" @onchange="(() => RateOrder(1))"/>
+                    <label for="star1" title="text" style="@Check(1)">1 star</label>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    OrdersResponse order = null;
+    bool loaded = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        order = await OrderService.GetOrder(Id);
+        loaded = true;
+    }
+
+    private string Check(int rating)
+    {
+        if(order.Rating == null)
+            return string.Empty;
+
+        if (rating <= order.Rating)
+            return "color: #ffc700;";
+        return string.Empty;
+    }
+
+    private async Task RateOrder(int rating)
+    {
+        var success = await OrderService.RateOrder(Id, rating);
+        if (!success)
+            await JSRuntime.InvokeVoidAsync("alert", "Something went wrong");
+        else NavigationManager.NavigateTo($"order/{Id}", true);
+    }
+}

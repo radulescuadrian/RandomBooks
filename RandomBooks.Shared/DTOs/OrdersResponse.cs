@@ -5,6 +5,7 @@ namespace RandomBooks.Shared.DTOs;
 public class OrdersResponse
 {
     public int Id { get; set; }
+    public string User { get; set; } = string.Empty;
     public DateTime DatePlaced { get; set; } = DateTime.Now;
     public DateTime LastModified { get; set; } = DateTime.Now;
     public string? Notes { get; set; }
@@ -16,6 +17,7 @@ public class OrdersResponse
     public List<OrderBook> Books { get; set; } = new List<OrderBook>();
     public string Payment { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
+    public int StatusId { get; set; } = 1;
     public string ItemsText { get; set; } = string.Empty;
     public int ProductsCount { get; set; } = 1;
 }

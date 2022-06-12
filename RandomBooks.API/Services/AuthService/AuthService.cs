@@ -81,6 +81,14 @@ public class AuthService : IAuthService
 
     public async Task<ServiceResponse<bool>> ChangePassword(int userId, string newPassword)
     {
+        if (int.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value) != userId &&
+            !_httpContextAccessor.HttpContext.User.IsInRole("Admin"))
+            return new ServiceResponse<bool>
+            {
+                Success = false,
+                Message = "You cannot change another user's password"
+            };
+
         var user = await _ctx.Users.FindAsync(userId);
         if (user == null)
             return new ServiceResponse<bool>

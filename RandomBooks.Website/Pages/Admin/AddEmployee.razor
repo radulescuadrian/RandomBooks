@@ -1,0 +1,71 @@
+﻿@page "/admin/add/{role}"
+@layout Shared.Layouts.AdminLayout
+@attribute [Authorize(Roles = "Admin")]
+@inject IUserService UserService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<center><h3>Add new @Role</h3></center>
+
+<div class="form">
+    <EditForm Model="employee" OnValidSubmit="SendRequest">
+        <DataAnnotationsValidator></DataAnnotationsValidator>
+        <div class="mb-3">
+            <label for="firstname">Firstname</label>
+            <InputText id="firstname" @bind-Value="employee.Firstname" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label for="lastname">Lastname</label>
+            <InputText id="lastname" @bind-Value="employee.Lastname" class="form-control" />
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(employee.Firstname) && !string.IsNullOrWhiteSpace(employee.Lastname))
+        {
+            <div class="d-flex mt-5">
+                <h2 class="me-2">Username:</h2>
+                <h2 class="fw-light text-secondary">@($"{employee.Firstname}.{employee.Lastname}")</h2>
+            </div>
+            <div class="d-flex mb-5">
+                <h2 class="me-2">Email:</h2>
+                <h2 class="fw-light text-secondary">@($"{employee.Firstname}.{employee.Lastname}@company.com")</h2>
+            </div>
+            
+            <div class="mb-3">
+                <label for="phoneNumber">Phone Number</label>
+                <InputText id="phoneNumber" @bind-Value="employee.PhoneNumber" class="form-control" />
+            </div>
+        }
+
+        <center><h3 class="text-danger">@message</h3></center>
+        <div class="d-flex">
+            <button type="button" class="btn bg-black text-white me-auto" 
+                    @onclick="Cancel">
+                Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Add @Role</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public string Role { get; set; }
+
+    NewEmlpoyee employee = new NewEmlpoyee();
+    string message = string.Empty;
+
+    private void Cancel() => NavigationManager.NavigateTo($"admin/{Role}s");
+
+    private async Task SendRequest()
+    {
+        employee.Role = Role;
+        var result = await UserService.AddEmployee(employee);
+        if (!result.Success)
+        {
+            message = result.Message;
+            return;
+        }
+
+        NavigationManager.NavigateTo($"admin/{Role}s");
+    }
+}

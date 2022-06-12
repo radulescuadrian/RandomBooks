@@ -37,12 +37,10 @@ public class AuthController : ControllerBase
         return Ok(response);
     }
 
-    [HttpPost("changePassword"), Authorize]
-    public async Task<ActionResult<ServiceResponse<bool>>> ChangePassword([FromBody] string newPassword)
+    [HttpPost("change-password"), Authorize]
+    public async Task<ActionResult<ServiceResponse<bool>>> ChangePassword(ChangePasswordRequest request)
     {
-        // get the userid from the claims
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var response = await _authService.ChangePassword(int.Parse(userId), newPassword);
+        var response = await _authService.ChangePassword(request.Id, request.Password);
         if (!response.Success)
             return BadRequest(response);
 

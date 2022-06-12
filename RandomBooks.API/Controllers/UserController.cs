@@ -16,16 +16,82 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{userId}"), Authorize(Roles = "Admin")]
-    public async Task<ActionResult<ServiceResponse<User>>> GetAuthor(int userId)
+    public async Task<ActionResult<ServiceResponse<User>>> GetUser(int userId)
     {
         var result = await _userService.GetUser(userId);
         return Ok(result);
     }
 
-    [HttpGet("~/api/{role}s/{page}"), Authorize(Roles = "Admin")]
-    public async Task<ActionResult<ServiceResponse<UserListResult>>> GetUsers(string role, int page = 1)
+    [HttpGet("~/api/customers/{page}"), Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<CustomerListResult>>> GetCustomers(int page = 1)
     {
-        var result = await _userService.GetUsers(page, role);
+        var result = await _userService.GetCustomers(page);
+        return Ok(result);
+    }
+
+    [HttpGet("~/api/employees/{page}"), Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<EmployeeListResult>>> GetEmployees(int page = 1)
+    {
+        var result = await _userService.GetEmployees(page);
+        return Ok(result);
+    }
+
+    [HttpGet("~/api/couriers/{page}"), Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<CourierListResult>>> GetCouriers(int page = 1)
+    {
+        var result = await _userService.GetCouriers(page);
+        return Ok(result);
+    }
+
+    [HttpGet("customer/{userId}"), Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<CustomerDetailsResponse>>> GetCustomerDetails(int userId)
+    {
+        var result = await _userService.GetAdminCustomerDetails(userId);
+        if (!result.Success)
+            return BadRequest(result.Message);
+        return Ok(result);
+    }
+
+    [HttpGet("employee/{userId}"), Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<EmployeeDetailsResponse>>> GetEmployeeDetails(int userId)
+    {
+        var result = await _userService.GetAdminEmployeeDetails(userId);
+        if (!result.Success)
+            return BadRequest(result.Message);
+        return Ok(result);
+    }
+
+    [HttpGet("courier/{userId}"), Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<EmployeeDetailsResponse>>> GetCourierDetails(int userId)
+    {
+        var result = await _userService.GetAdminCourierDetails(userId);
+        if (!result.Success)
+            return BadRequest(result.Message);
+        return Ok(result);
+    }
+
+    [HttpPost("deactivate"), Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<bool>>> DeactivateUser([FromBody] int userId)
+    {
+        var result = await _userService.DeactivateUser(userId);
+        if (!result.Success)
+            return BadRequest(result);
+        return Ok(result);
+    }
+
+    [HttpPost("activate"), Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<bool>>> ActivateUser([FromBody] int userId)
+    {
+        var result = await _userService.ActivateUser(userId);
+        if (!result.Success)
+            return BadRequest(result);
+        return Ok(result);
+    }
+
+    [HttpPost("addemployee"), Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ServiceResponse<bool>>> AddEmployee(NewEmlpoyee employee)
+    {
+        var result = await _userService.AddEmployee(employee);
         return Ok(result);
     }
 

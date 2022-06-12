@@ -1,0 +1,22 @@
+﻿img {
+    width: 284px;
+    height: 284px;
+    border-radius: 142px;
+}
+
+.grid-container {
+    display: flex;
+    flex-wrap: wrap;
+    overflow: hidden;
+    padding: 10px;
+}
+
+    .grid-container > * {
+        flex: none;
+        margin: 6px;
+    }
+
+.grid-item {
+    border-radius: 10px;
+    text-align: center;
+}

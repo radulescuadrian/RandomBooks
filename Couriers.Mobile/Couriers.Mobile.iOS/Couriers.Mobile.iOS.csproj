@@ -136,10 +136,4 @@
     <PackageReference Include="Xamarin.Essentials" Version="1.7.0" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
-  <ItemGroup>
-    <ProjectReference Include="..\Couriers.Mobile\Couriers.Mobile.csproj">
-      <Project>{A573F559-0DDE-4ABA-BD75-4500678FD2BD}</Project>
-      <Name>Couriers.Mobile</Name>
-    </ProjectReference>
-  </ItemGroup>
 </Project>

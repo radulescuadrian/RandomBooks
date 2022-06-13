@@ -428,6 +428,13 @@ public class UserService : IUserService
                     .Include(x => x.Image)
                     .FirstOrDefaultAsync(x => x.UserId == userId);
 
+        if (user.Cards != null)
+            user.Cards.ForEach(x =>
+            {
+                var number = x.Number.Substring(x.Number.Length - 4);
+                x.Number = number;
+            });
+
         return new ServiceResponse<CustomerDetails> { Data = user };
     }
 

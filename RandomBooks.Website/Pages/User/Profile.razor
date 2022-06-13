@@ -282,7 +282,7 @@ else
                             </button>
                             <button class="btn btn-success ms-2"
                                     style="height: 25px; width: 25px; padding: 0;"
-                                    @onclick="(() => SaveCard(card))">
+                                    @onclick="(() => SaveCard(editCard))">
                                 <i class="fa-solid fa-floppy-disk"></i>
                             </button>
                         }
@@ -349,7 +349,7 @@ else
                                 <p class="fw-bold text-start fw-bold">@card.Name</p>
                             </div>
                             <div class="row ps-1">
-                                <p class="text-start">**** **** **** @(card.Number.Substring(card.Number.Length - 4))</p>
+                                <p class="text-start">**** **** **** @card.Number</p>
                             </div>
                         </div>
                     }
@@ -433,7 +433,7 @@ else
     {
         if (editAddress.New)
             CustomerService.User.Addresses.Remove(editAddress);
-        
+
         await CustomerService.GetProfile();
     }
 
@@ -471,7 +471,13 @@ else
         CustomerService.User.Cards.ForEach(x => x.Editing = false);
 
         card.Editing = true;
-        editCard = card;
+        editCard = new CustomerCard
+        {
+            Id=card.Id,
+            CustomerDetailsId=card.CustomerDetailsId,
+            Name = card.Name,
+            Editing = true
+        };
     }
 
     async void CancelEditCard()

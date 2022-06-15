@@ -2,6 +2,7 @@
 @layout Shared.Layouts.AdminLayout
 @attribute [Authorize(Roles = "Admin")]
 @inject IOrderService OrderService
+@inject NavigationManager NavigationManager
 
 @if(order == null)
 {
@@ -17,8 +18,9 @@
 }
 else
 {
+
     <center><h2>Order #@order.Id</h2></center>
-    <div class="container container-center mt-5" style="border: 1px solid black; border-radius: 20px; margin-bottom: 50px !important;">
+    <div class="container container-center my-5" style="border: 1px solid black; border-radius: 20px;">
         <div>
             <div class="row d-flex" style="width: 100%; margin: auto; margin-top: 7px;">
                 <div class="col">
@@ -71,6 +73,8 @@ else
                     </div>
                     <center style="margin-top: 150px;">
                         <p class="mb-0"><strong>Placed By: </strong>@order.User</p>
+                        <p class="mb-0"><strong>Processed By: </strong>@order.Employee</p>
+                        <p class="mb-0"><strong>Delivered By: </strong>@order.Courier</p>
                         @if (order.Rating != null)
                         {
                             <p class="mb-0 text-danger fw-bold">@order.Rating @(order.Rating > 1 ? "stars" : "star")</p>
@@ -82,7 +86,7 @@ else
             <div class="row d-flex" style="width: 100%; margin: auto; margin-bottom: 9px;">
                 <div class="col">
                     <h2><strong>Payment Method</strong></h2>
-                    @if (string.IsNullOrEmpty(order.Payment))
+                    @if (order.Payment == "On Delivery")
                     {
                         <p><strong class="me-4">CASH</strong>you will pay the courier</p>
                     }
@@ -117,6 +121,9 @@ else
             </div>
         </div>
     </div>
+    <center>
+        <button class="btn bg-black text-white" @onclick="GenerateInvoice">Generate Invoice</button>
+        </center>
 }
 
 @code {
@@ -131,4 +138,6 @@ else
         order = await OrderService.GetOrder(Id);
         loaded = true;
     }
+
+    private void GenerateInvoice() => NavigationManager.NavigateTo($"https://localhost:7163/api/order/invoice/{Id}");
 }

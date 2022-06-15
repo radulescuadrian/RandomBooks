@@ -76,7 +76,7 @@ else
             <div class="row d-flex" style="width: 100%; margin: auto; margin-bottom: 9px;">
                 <div class="col">
                     <h2><strong>Payment Method</strong></h2>
-                    @if (string.IsNullOrEmpty(order.Payment))
+                    @if (order.Payment == "On Delivery")
                     {
                         <p><strong class="me-4">CASH</strong>you will pay the courier</p>
                     }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using RandomBooks.Shared.DatabaseModels;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RandomBooks.Shared.DTOs;
 
@@ -6,6 +7,9 @@ public class OrdersResponse
 {
     public int Id { get; set; }
     public string User { get; set; } = string.Empty;
+    public User FullUser { get; set; } = new User();
+    public string Employee { get; set; } = string.Empty;
+    public string Courier { get; set; } = string.Empty;
     public DateTime DatePlaced { get; set; } = DateTime.Now;
     public DateTime LastModified { get; set; } = DateTime.Now;
     public string? Notes { get; set; }

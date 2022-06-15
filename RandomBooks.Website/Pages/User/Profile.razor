@@ -141,8 +141,8 @@ else
             @foreach (var address in CustomerService.User.Addresses.Where(x => !x.Deleted))
             {
                 <div class="grid-item p-1 showDetails">
-                    <div class="row mx-auto mb-5" 
-                         style="@(address.Editing ? "margin-bottom: 10px!important;" : "")">
+                    <div class="row mx-auto" 
+                         style="height: 29px;">
                         @if (address.Editing)
                         {
                             <button class="btn bg-black text-white ms-auto"
@@ -271,8 +271,8 @@ else
             @foreach (var card in CustomerService.User.Cards.Where(x => !x.Deleted))
             {
                 <div class="grid-item p-1 showDetails" style="padding: 12px !important;">
-                    <div class="row mx-auto mb-5" 
-                         style="@(card.Editing ? "margin-bottom: 10px!important;" : "")">
+                    <div class="row mx-auto" 
+                         style="height: 29px;">
                         @if (card.Editing)
                         {
                             <button class="btn bg-black text-white ms-auto"

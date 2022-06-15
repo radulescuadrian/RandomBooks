@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Mime;
 
 namespace RandomBooks.API.Controllers;
 
-[Route("api/[controller]"), Authorize]
+[Route("api/[controller]")]
 [ApiController]
 public class OrderController : ControllerBase
 {
@@ -14,7 +15,7 @@ public class OrderController : ControllerBase
         _orderService = orderService;
     }
 
-    [HttpGet("{orderId}")]
+    [HttpGet("{orderId}"), Authorize]
     public async Task<ActionResult<ServiceResponse<OrdersResponse>>> GetOrder(int orderId)
     {
         var result = await _orderService.GetOrder(orderId);
@@ -23,7 +24,19 @@ public class OrderController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet]
+
+    [HttpGet("invoice/{orderId}")]
+    public async Task<IActionResult> GetInvoice(int orderId)
+    {
+        var result = await _orderService.GetInvoice(orderId);
+        if (!result.Success)
+            return BadRequest(result.Message);
+
+        Response.ContentLength = result.Data.Length;
+        return File(result.Data, "application/octet-stream", $"Invoice #{orderId}.pdf");
+    }
+
+    [HttpGet, Authorize]
     public async Task<ActionResult<ServiceResponse<List<OrdersResponse>>>> GetOrders()
     {
         var result = await _orderService.GetOrders();
@@ -41,7 +54,7 @@ public class OrderController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost]
+    [HttpPost, Authorize]
     public async Task<ActionResult<ServiceResponse<bool>>> PlaceOrder(OrderRequest order)
     {
         var result = await _orderService.PlaceOrder(order);
@@ -50,7 +63,7 @@ public class OrderController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("rating")]
+    [HttpPost("rating"), Authorize]
     public async Task<ActionResult<ServiceResponse<bool>>> RateOrder(OrderRating rating)
     {
         var result = await _orderService.RateOrder(rating);
